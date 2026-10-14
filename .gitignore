@@ -1,0 +1,7 @@
+build/
+app/build/
+app/src/main/res/raw/
+.gradle/
+.idea/
+local.properties
+*.p12
