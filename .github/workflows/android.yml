@@ -2,7 +2,7 @@ name: Build, smoke test and release APK
 on:
   push:
     branches: [main]
-    paths: ['app/**', 'scripts/**', 'tests/**', 'signing/**', 'build.sh', '.github/workflows/android.yml']
+    paths: ['app/**', 'scripts/generate_sounds.py', 'tests/**', 'signing/**', 'build.sh', '.github/workflows/android.yml']
   workflow_dispatch:
 permissions:
   contents: write

@@ -2,6 +2,8 @@
 
 一款专注点按反馈的轻量原生 Android 应用。深色界面，青柠色目标，柔和递进音效与弹性动效。无需网络或账号，数据只保存在本机。
 
+Unity 重做客户端第一版已加入 [`unity/`](./unity/README.md)：立体棋盘、光波与连击反馈、经典/限时两种模式。规则测试已通过，Unity Editor 运行和新 APK 构建尚待验证；下方 v1.0.0 下载仍为原生版。
+
 [下载 APK（v1.0.0 Release）](https://github.com/azfiles/apkGo/releases/tag/v1.0.0) · [构建与测试](https://github.com/azfiles/apkGo/actions/workflows/android.yml)
 
 v1.0.0 已发布：92 项逻辑检查、169 项 Android 10 模拟器 UI 检查及签名/对齐验证全部通过。[查看验证记录](./docs/verification.md)。`dist/` 提供与 Release 完全一致的备用安装包。
