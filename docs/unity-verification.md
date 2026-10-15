@@ -2,6 +2,16 @@
 
 本记录仅针对 `unity/` 工程。原生 v1 的 169 项 UI 冒烟结果不能作为 Unity 版验证结果。
 
+## GitHub Actions 实际运行
+
+源码提交：`a2e0444c76df64508523e092e39dfbce900d491a`，分支 `codex/unity-client-v1`。
+
+- [Unity game rules](https://github.com/azfiles/apkGo/actions/runs/38688718028)：成功，509 项规则检查通过。
+- [Unity Android preview](https://github.com/azfiles/apkGo/actions/runs/38688717941)：规则阶段成功；许可配置检查失败，未进入编译，发布阶段跳过。
+- 实际失败原因：`UNITY_EMAIL`、`UNITY_PASSWORD`、`UNITY_SERIAL` / `UNITY_LICENSE` 在此次 Actions 运行中均未配置。
+
+前置检查只输出缺失的配置名称，没有读取或泄漏凭证内容。为仓库配置适用的 Unity 激活 Secrets 后，可从该次运行的 **Re-run failed jobs** 继续。当前没有 Unity APK 或 Unity Release，不能把许可预检失败称为 Unity 编译失败。
+
 ## 已执行
 
 - 纯 C# 规则测试：509 项通过；.NET SDK 8.0.426。
@@ -9,6 +19,8 @@
 - 中文字体字符覆盖、场景资源引用、资源 GUID 唯一性、JSON 配置与构建脚本语法检查：通过。
 - 原生 v1 规则回归：92 项通过，未重新执行原生设备冒烟。
 - 构建脚本用到的主要 PlayerSettings API 已对照 Unity 官方 `6000.0.60f1` 源码核对，尚未在编辑器执行。
+- Actions 工作流通过 actionlint；许可检查的缺失/序列号/许可文件分支及凭证不输出检查通过。
+- 发布包门禁已验证会拒绝旧版原生 APK；真正 Unity APK 的签名和对齐步骤须等待编译产物后执行。
 - 运行时代码检查引用 UnityEngine.Modules 2021.3.33、Unity3D.UnityEngine.UI 2018.3.5.1；它们仅用于临时静态检查，不随项目分发，也不是项目的 Unity 依赖版本。
 
 ## 尚未执行

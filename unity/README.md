@@ -2,7 +2,7 @@
 
 独立 Unity 客户端源码，目标编辑器为 **Unity 6.0 LTS / 6000.0.60f1**。Android 默认构建为 ARM64、Android 8.0 及以上。
 
-**交付状态：游戏逻辑测试已通过，运行时代码通过参考程序集编译检查；尚未在 Unity Editor 中导入、运行或构建 APK。当前开发环境没有 Unity Editor、Android Build Support 和已配置的 Unity 许可。仓库原有 `dist/Schulte-Flow-1.0.0.apk` 是旧版原生 App，不是本 Unity 版。**
+**交付状态：本地和 GitHub Actions 游戏规则测试均已通过，运行时代码通过参考程序集编译检查。GitHub 构建发布流程已提交并运行，因缺少 Unity 激活 Secrets 停在许可预检，尚未进入 Unity 编译；没有新版 APK。仓库原有 `dist/Schulte-Flow-1.0.0.apk` 是旧版原生 App，不是本 Unity 版。**
 
 ## 首版功能
 
@@ -80,7 +80,7 @@ Unity 使用固定版本 `6000.0.60f1`，构建器固定到 GameCI v4 的具体�
 bash scripts/test-unity-logic.sh
 ```
 
-已通过 **509 项检查**，覆盖随机棋盘完整性、三档两模式完整通关、误触、连击、暂停恢复、限时边界和损坏存档。GitHub Actions 的 `Unity game rules` 工作流会在提交和 PR 时执行；新增工作流尚未在远程运行。
+已通过 **509 项检查**，覆盖随机棋盘完整性、三档两模式完整通关、误触、连击、暂停恢复、限时边界和损坏存档。GitHub Actions 的 [Unity game rules](https://github.com/azfiles/apkGo/actions/runs/38688718028) 已成功运行，并会在相关提交和 PR 时执行。
 
 运行时代码另用 UnityEngine 2021.3.33 / UGUI 2018.3.5.1 参考程序集和 C# 编译器检查，含 Android 条件分支。该检查仅验证语法和所用的较早 Unity API，不等价于目标 Unity 6 的脚本导入、Shader 编译、画面渲染、JNI 或 IL2CPP 构建。Editor 构建脚本也需要在目标 Unity 版本验证。
 
