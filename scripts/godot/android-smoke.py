@@ -1,6 +1,8 @@
 """Exercise the actual release APK with real Android touch events on a disposable emulator."""
 import pathlib
+import re
 import subprocess
+import sys
 import time
 
 PACKAGE = 'com.alex.schulteflow.godot'
@@ -8,7 +10,8 @@ OUT = pathlib.Path('build/godot')
 SHOTS = OUT / 'screenshots'
 SHOTS.mkdir(parents=True, exist_ok=True)
 checks = []
-log_segments = []
+current_pid = ''
+marker_offset = 0
 
 
 def adb(*args, **kwargs):
@@ -22,19 +25,31 @@ def check(value, message):
     print('PASS: ' + message, flush=True)
 
 
+def markers():
+    log = adb('logcat', '-d', '--pid=' + current_pid, '-s', 'godot:V', '*:S').decode(errors='replace')
+    return re.findall(r'FLOW_SCREEN (\w+)', log)
+
+
+def checkpoint():
+    global marker_offset
+    marker_offset = len(markers())
+
+
 def screen(name):
+    global marker_offset
     deadline = time.monotonic() + 30
     while time.monotonic() < deadline:
-        log = adb('logcat', '-d', '-s', 'godot:V', '*:S').decode(errors='replace')
-        if 'FLOW_SCREEN ' + name in log:
+        states = markers()
+        if name in states[marker_offset:]:
+            marker_offset = len(states)
             check(True, 'screen ' + name)
             return
         time.sleep(.5)
-    raise AssertionError('Missing screen ' + name + '\n' + log[-5000:])
+    raise AssertionError('Missing screen ' + name + '; observed states: ' + str(states))
 
 
 def tap(x, y, expected):
-    clear_logs()
+    checkpoint()
     adb('shell', 'input', 'tap', str(x), str(y))
     screen(expected)
 
@@ -44,15 +59,12 @@ def shot(name):
 
 
 def launch():
-    clear_logs()
+    global current_pid, marker_offset
+    marker_offset = 0
     output = adb('shell', 'am', 'start', '-W', '-n', PACKAGE + '/com.godot.game.GodotAppLauncher').decode()
     check('Status: ok' in output, 'Android launches release activity')
+    current_pid = adb('shell', 'pidof', PACKAGE).decode().strip().split()[0]
     screen('home')
-
-
-def clear_logs():
-    log_segments.append(adb('logcat', '-d').decode(errors='replace'))
-    adb('logcat', '-c')
 
 
 try:
@@ -76,7 +88,7 @@ try:
     tap(580, 1090, 'restart')
     tap(360, 710, 'play')
     # Android background event must hide the board and save before process death.
-    clear_logs()
+    checkpoint()
     adb('shell', 'input', 'keyevent', '3')
     screen('pause')
     adb('shell', 'am', 'force-stop', PACKAGE)
@@ -85,10 +97,15 @@ try:
     shot('restored')
     tap(360, 715, 'play')
     check(bool(adb('shell', 'pidof', PACKAGE).strip()), 'release process remains alive')
-    clear_logs()
-    complete_log = '\n'.join(log_segments)
+    complete_log = adb('logcat', '-d').decode(errors='replace')
     check(not any(marker in complete_log for marker in ('SCRIPT ERROR:', 'FATAL EXCEPTION', 'Fatal signal')), 'no script error or crash in tested session')
     print('ANDROID: %d checks, 0 failures' % len(checks), flush=True)
+except Exception:
+    shot('failure')
+    diagnostic = adb('logcat', '-d').decode(errors='replace')
+    relevant = [line for line in diagnostic.splitlines() if any(term in line for term in
+        ('godot', 'Godot', 'AndroidRuntime', 'FATAL', 'Fatal', 'ANR', 'EGL', 'GLES', 'OpenGL', current_pid))]
+    print('\n'.join(relevant[-180:]), file=sys.stderr)
+    raise
 finally:
-    log_segments.append(adb('logcat', '-d').decode(errors='replace'))
-    (OUT / 'logcat.txt').write_text('\n'.join(log_segments))
+    (OUT / 'logcat.txt').write_bytes(adb('logcat', '-d'))
