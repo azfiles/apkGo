@@ -30,7 +30,8 @@ export JAVA_HOME=/path/to/jdk-17
 bash scripts/godot/build.sh
 
 # 仅在专用、可清除数据的模拟器上执行；会清空 Godot 版的本机进度
-python3 scripts/godot/android-smoke.py
+python3 -m pip install Pillow==11.3.0
+bash scripts/godot/android-smoke.sh
 ```
 
 非 Gradle 导出沿用官方 4.6.3 模板的 minSdk 24 / targetSdk 36。APK 构建输出在 `build/godot/output/`。`verify-apk.sh` 检查 v2/v3 签名、16 KB ZIP 对齐、64 位 ELF LOAD 段 16 KB 对齐、包名、SDK、三种 ABI、离线权限和资源。32 位 ARM 不要求 16 KB ELF 段。

@@ -2,11 +2,15 @@
 
 Godot 版将舒尔特表变成会漂流、碰撞、反弹的数字球：从 1 开始依次点亮数字，穿过 9 个逐步解锁的关卡。点击冲量、碰撞火花、点亮与通关粒子，配合轻柔音阶；支持星级、最佳纪录、暂停、后台停表和本机进度恢复。
 
-[下载 Godot APK（Releases）](https://github.com/azfiles/apkGo/releases) · [Godot 编译、验证与发布](https://github.com/azfiles/apkGo/actions/workflows/godot-android.yml) · [开发与验证说明](docs/godot-development.md)
+[下载 Godot 2.0 APK](https://github.com/azfiles/apkGo/releases/download/godot-v2.0.0-4-bdc250e/Schulte-Flow-Godot-2.0.0.apk) · [Godot 编译、验证与发布](https://github.com/azfiles/apkGo/actions/workflows/godot-android.yml) · [开发与验证说明](docs/godot-development.md)
 
 打开 `godot/project.godot`，使用 Godot 4.6.3。运行 `bash scripts/godot/test.sh` 可验证状态机、真实触摸输入、刚体碰撞、粒子、暂停和 9 关通关。Actions 会额外签名、检查 APK，并在 Android 10 模拟器上安装操作实际发布包，全部通过后才创建独立 Release。
 
 Android 7.0+、OpenGL ES 3.0；ARM64 / ARMv7 / x86_64。独立包名 `com.alex.schulteflow.godot`，与旧版并存，旧版成绩不迁移。离线运行，仅振动权限。沿用公开演示签名，供体验安装。
+
+已发布：[Godot 2.0 体验版](https://github.com/azfiles/apkGo/releases/tag/godot-v2.0.0-4-bdc250e)。368 项逻辑、53 项场景、22 项 Android 安装/操作/画面检查通过；下载成品的 SHA256 与签名已复核。[完整验证记录](docs/godot-verification.md)。
+
+<img src="docs/screenshots/godot-home.png" width="260" alt="Godot 版 Android 首页"> <img src="docs/screenshots/godot-play.png" width="260" alt="Godot 版 Android 物理数字球关卡">
 
 ## 原生 Java 1.0（保留）
 
