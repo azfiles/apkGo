@@ -1,8 +1,6 @@
 name: Build, smoke test and release APK
 on:
-  push:
-    branches: [main]
-    paths: ['app/**', 'scripts/**', 'tests/**', 'signing/**', 'build.sh', '.github/workflows/android.yml']
+  # Java 1.0 is retained for comparison. Godot owns automatic releases now.
   workflow_dispatch:
 permissions:
   contents: write

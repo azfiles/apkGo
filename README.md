@@ -10,6 +10,8 @@ Android 7.0+、OpenGL ES 3.0；ARM64 / ARMv7 / x86_64。独立包名 `com.alex.s
 
 ## 原生 Java 1.0（保留）
 
+以下为旧版说明。Java 构建工作流现已改为仅手动运行，后续自动编译与发布使用上方的 Godot 工作流。
+
 一款专注点按反馈的轻量原生 Android 应用。深色界面，青柠色目标，柔和递进音效与弹性动效。无需网络或账号，数据只保存在本机。
 
 [下载 APK（v1.0.0 Release）](https://github.com/azfiles/apkGo/releases/tag/v1.0.0) · [构建与测试](https://github.com/azfiles/apkGo/actions/workflows/android.yml)
