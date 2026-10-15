@@ -5,3 +5,14 @@ app/src/main/res/raw/
 .idea/
 local.properties
 *.p12
+work/
+unity/[Ll]ibrary/
+unity/[Tt]emp/
+unity/[Oo]bj/
+unity/[Bb]uilds/
+unity/[Ll]ogs/
+unity/[Uu]ser[Ss]ettings/
+unity/.vs/
+unity/*.csproj
+unity/*.sln
+unity/MemoryCaptures/
