@@ -32,6 +32,8 @@ jobs:
         run: bash scripts/godot/test.sh
       - name: Export and verify signed release APK
         run: bash scripts/godot/build.sh
+      - name: Install screenshot verification dependency
+        run: python3 -m pip install Pillow==11.3.0
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -45,7 +47,8 @@ jobs:
           arch: x86_64
           profile: pixel_2
           disable-animations: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          # ANGLE avoids the deprecated SwiftShader GLES driver's uniform-limit bug.
+          emulator-options: -no-window -gpu swangle -noaudio -no-boot-anim -camera-back none -no-metrics
           script: bash scripts/godot/android-smoke.sh
       - name: Upload verified installable APK
         uses: actions/upload-artifact@v4
@@ -93,4 +96,9 @@ jobs:
             echo 'This exact verified release is already published; leaving it immutable.'
           else
             gh release create "$TAG" release/apk/* release/verification.tar.gz --target "$GITHUB_SHA" --title '循光 · Godot 2.0 · 物理关卡体验版' --notes-file release/notes.md --prerelease
+          fi
+          # Correct the first release's incomplete visual-verification claim.
+          if gh release view godot-v2.0.0-3-594a382 >/dev/null 2>&1; then
+            printf '此历史构建仅完成逻辑与输入验证，复核截图发现模拟器渲染错误，不能作为画面验证通过的版本。\n\n请下载已增加画面及渲染错误检查的新版：https://github.com/%s/releases/tag/%s\n' "$GITHUB_REPOSITORY" "$TAG" > release/superseded.md
+            gh release edit godot-v2.0.0-3-594a382 --title '历史构建 · 画面验证不足，请下载新版' --notes-file release/superseded.md
           fi

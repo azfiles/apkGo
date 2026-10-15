@@ -39,6 +39,8 @@ python3 scripts/godot/android-smoke.py
 
 `.github/workflows/godot-android.yml` 在相关源码推送到 main、PR 和手动触发时运行验证。只有 main 且全部验证通过才进入独立的 Release job；PR 无写权限、不发布。每次发布采用包含 run number 和提交 SHA 的独立标签，不覆盖旧 Release。重复运行同一已发布提交不会替换资产。APK、SHA256、完整报告和截图一起发布。
 
+设备验证使用当前支持的 `swangle` 渲染后端（[Android 官方说明](https://developer.android.com/studio/run/emulator-acceleration)），并检查实际截图中的文字、按钮和数字球区域；遇到 Godot 渲染错误直接失败。这样即使输入事件和进程正常，也不能用黑屏通过发布。停用着色器磁盘缓存避免在不同驱动间复用二进制程序；本游戏使用简单 2D 着色器。
+
 `signing/demo-signing.p12.base64` 是之前已公开的演示签名；不是生产凭据。构建不需要新增 GitHub Secrets，Release 使用 job 限定的 `GITHUB_TOKEN`。
 
 ## 字体与许可

@@ -1,9 +1,12 @@
 """Exercise the actual release APK with real Android touch events on a disposable emulator."""
 import pathlib
+import io
 import re
 import subprocess
 import sys
 import time
+from PIL import Image
+from image_checks import validate_frame
 
 PACKAGE = 'com.alex.schulteflow.godot'
 OUT = pathlib.Path('build/godot')
@@ -55,7 +58,18 @@ def tap(x, y, expected):
 
 
 def shot(name):
-    (SHOTS / (name + '.png')).write_bytes(adb('exec-out', 'screencap', '-p'))
+    deadline = time.monotonic() + 20
+    while True:
+        data = adb('exec-out', 'screencap', '-p')
+        (SHOTS / (name + '.png')).write_bytes(data)
+        if name == 'failure':
+            return
+        if validate_frame(Image.open(io.BytesIO(data)), name):
+            check(True, 'rendered ' + name + ' screenshot')
+            return
+        if time.monotonic() >= deadline:
+            raise AssertionError('Missing rendered game pixels in ' + name)
+        time.sleep(.5)
 
 
 def launch():
@@ -72,6 +86,7 @@ try:
     # Destructive only to this package on the dedicated CI emulator.
     adb('shell', 'wm', 'size', '720x1280')
     adb('shell', 'wm', 'density', '240')
+    adb('shell', 'settings', 'put', 'secure', 'immersive_mode_confirmations', 'confirmed')
     adb('shell', 'input', 'keyevent', '82')
     check('Success' in adb('install', '-r', 'build/godot/output/Schulte-Flow-Godot-2.0.0.apk').decode(), 'install release APK')
     adb('shell', 'pm', 'clear', PACKAGE)
@@ -99,6 +114,7 @@ try:
     check(bool(adb('shell', 'pidof', PACKAGE).strip()), 'release process remains alive')
     complete_log = adb('logcat', '-d').decode(errors='replace')
     check(not any(marker in complete_log for marker in ('SCRIPT ERROR:', 'FATAL EXCEPTION', 'Fatal signal')), 'no script error or crash in tested session')
+    check(not re.search(r'\bE godot\s*: ERROR:', complete_log), 'no Godot renderer or engine errors')
     print('ANDROID: %d checks, 0 failures' % len(checks), flush=True)
 except Exception:
     shot('failure')
