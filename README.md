@@ -2,9 +2,11 @@
 
 一款专注点按反馈的轻量原生 Android 应用。深色界面，青柠色目标，柔和递进音效与弹性动效。无需网络或账号，数据只保存在本机。
 
-[下载 APK（当前体验包）](./dist/Schulte-Flow-1.0.0.apk) · [构建与测试](https://github.com/azfiles/apkGo/actions/workflows/android.yml)
+[下载 APK（v1.0.0 Release）](https://github.com/azfiles/apkGo/releases/tag/v1.0.0) · [构建与测试](https://github.com/azfiles/apkGo/actions/workflows/android.yml)
 
-当前状态：签名 APK 已放入 `dist/`；92 项逻辑检查及签名/对齐验证通过，设备 UI 冒烟待运行，Release 待发布。详见 [验证说明](./dist/README.md)。
+v1.0.0 已发布：92 项逻辑检查、169 项 Android 10 模拟器 UI 检查及签名/对齐验证全部通过。[查看验证记录](./docs/verification.md)。`dist/` 提供与 Release 完全一致的备用安装包。
+
+<img src="docs/screenshots/home.png" width="260" alt="首页"> <img src="docs/screenshots/result.png" width="260" alt="通关统计">
 
 ## 玩法与功能
 从 1 开始按顺序点亮数字。提供 3×3、4×4、5×5 三档；点错会提示，不额外加时。连续点对有连击、音阶、回弹和粒子反馈。音效与触感可分别关闭，触感遵循系统设置。
@@ -12,7 +14,7 @@
 暂停遮住棋盘，后台自动停表，重新打开恢复未完成进度。完成后显示用时、准确率、误触数和平均每格时间；各难度独立保存最佳纪录。
 
 ## 安装
-Android 8.0（API 26）及以上。下载 `dist/Schulte-Flow-1.0.0.apk`（GitHub 页面点击 Download raw file） 到手机并打开，按系统提示允许安装即可。APK 不请求网络、存储等权限，不包含广告、统计或第三方运行时依赖。卸载会清除本机成绩。
+Android 8.0（API 26）及以上。下载 Release 中的 `Schulte-Flow-1.0.0.apk` 到手机并打开，按系统提示允许安装即可。APK 不请求网络、存储等权限，不包含广告、统计或第三方运行时依赖。卸载会清除本机成绩。
 
 ## 构建
 Linux、JDK 17、Python 3 和 Android SDK。安装 `platforms;android-35`、`build-tools;35.0.0`，设置 `ANDROID_SDK_ROOT` 后运行：

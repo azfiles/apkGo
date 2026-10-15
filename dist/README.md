@@ -1,9 +1,11 @@
-# 体验版安装包
+# 已验证体验版安装包
 
-下载 [Schulte-Flow-1.0.0.apk](./Schulte-Flow-1.0.0.apk)，点击 GitHub 文件页面的 **Download raw file**，然后在 Android 8.0 或以上手机打开安装。
+优先从 [v1.0.0 Release](https://github.com/azfiles/apkGo/releases/tag/v1.0.0) 下载；本目录的 [Schulte-Flow-1.0.0.apk](./Schulte-Flow-1.0.0.apk) 是同一文件。支持 Android 8.0 及以上，GitHub 私有仓库下载需要登录有权限的账号。
 
-当前本地构建：92 项状态机检查通过；APK v2/v3 签名验证、zipalign 对齐验证通过。设备 UI 冒烟尚未完成，GitHub Actions 尚未出现运行记录，Release 尚未发布。此包适合先安装体验，不能据此声称已经通过真机或模拟器端完整测试。
+已通过：92 项游戏逻辑检查、Android 10 模拟器上的 169 项 UI 检查、APK v2/v3 签名和 zipalign 对齐验证。覆盖三档完整通关、实际触摸、误触、暂停停表、取消重开、Activity 重建恢复、设置和最佳纪录持久化。
 
-此包使用 Android SDK 35、Build Tools 35.0.0 和 Eclipse ECJ 3.38.0（Java 8 目标）构建。源码中的默认构建脚本使用 JDK 17 javac；当前工作环境的 JDK 模块加载异常，因此本次采用 ECJ 编译。无新增应用运行时依赖。
+构建来源：[GitHub Actions #4](https://github.com/azfiles/apkGo/actions/runs/38573938332)，提交 `4be0e2c19e685006ceb087bac38b0824ce65e40e`。采用 JDK 17 javac、Android SDK 35 和 Build Tools 35.0.0。
 
-公开演示证书签名，仅供体验。校验值见 SHA256SUMS.txt。测试自动化就绪后，通过完整检查的版本将发布到 Releases。
+校验值见 `SHA256SUMS.txt`，报告见 `model-report.txt` 和 `smoke-report.txt`。SHA256 与 Release 资产摘要一致。
+
+使用公开演示证书签名，仅供体验。模拟器已验证功能；触感强度、声音听感和其他系统版本兼容性仍需实体手机体验。
