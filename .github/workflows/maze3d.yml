@@ -10,7 +10,7 @@ permissions:
   contents: read
 concurrency:
   group: pipi-3d-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-22.04
@@ -93,5 +93,6 @@ jobs:
         run: |
           cd build/maze3d/release
           sha256sum -c SHA256SUMS.txt
-          printf '\n验证流水线：https://github.com/%s/actions/runs/%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> RELEASE_NOTES.md
-          gh release create maze-3d-v0.2.0 ./* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title 'Pipi Maze · 灯火遗迹 0.2.0 · 3D 体验版' --notes-file RELEASE_NOTES.md
+          cp RELEASE_NOTES.md ../release-body.md
+          printf '\n验证流水线：https://github.com/%s/actions/runs/%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> ../release-body.md
+          gh release create maze-3d-v0.2.0 ./* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title 'Pipi Maze · 灯火遗迹 0.2.0 · 3D 体验版' --notes-file ../release-body.md

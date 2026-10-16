@@ -33,7 +33,7 @@ func run() -> void:
 	await capture("05-beacon")
 	w.interact()
 	await capture("06-lit")
-	w.activated.assign([0,1,2]);w.update_gate()
+	w.activated.assign([0,1,2]);w.update_gate();app.toast_timer=0;app.tutorial_time=0
 	w.player.position=w.gate.position+w.gate.global_basis.z*2.3+Vector3(0,.1,0)
 	var direction:Vector3=-w.gate.global_basis.z
 	w.yaw=atan2(direction.x,-direction.z);w.avatar.rotation.y=atan2(direction.x,direction.z);w.camera_ready=false
