@@ -1,0 +1,18 @@
+{
+  "triangles": 36004,
+  "mesh_objects": 10,
+  "materials": 14,
+  "height_m": 2.1,
+  "articulation": [
+    "Torso",
+    "Head",
+    "ArmL",
+    "ArmR",
+    "LegL",
+    "LegR",
+    "EarL",
+    "EarR",
+    "Satchel"
+  ],
+  "reference": "https://oshiri-tantei.com/character/?char=char-brown"
+}

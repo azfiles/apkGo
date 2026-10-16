@@ -55,7 +55,7 @@ func draw_home(w: float) -> void:
 	text("PIPI MAZE",Vector2(83,57),24,CREAM,latin)
 	text("3D EXPLORATION",Vector2(240,54),12,SOFT,latin)
 	panel(Rect2(w-218,30,174,33),Color(.04,.12,.16,.6),16)
-	centered("体验版  /  0.2.0",Vector2(w-131,52),14,SOFT)
+	centered("体验版  /  0.2.1",Vector2(w-131,52),14,SOFT)
 	text("A LITTLE LIGHT. A WAY HOME.",Vector2(63,145),14,GOLD,latin)
 	text("灯火",Vector2(58,241),80,CREAM,serif)
 	text("遗迹",Vector2(58,330),80,CREAM,serif)
@@ -79,7 +79,7 @@ func draw_home(w: float) -> void:
 		text(["入门 · 庭院","进阶 · 回廊","挑战 · 深境"][i],r.position+Vector2(16,85),13,SOFT)
 		buttons.append({"id":"chapter%d"%i,"rect":r})
 	line(Vector2(64,672),Vector2(w-48,672))
-	text("原创 3D 探索 Demo",Vector2(64,698),13,SOFT)
+	text("3D 迷宫体验 Demo",Vector2(64,698),13,SOFT)
 	text("离线游玩  /  自动保存  /  无时间限制",Vector2(w-340,698),13,SOFT)
 
 func draw_hud(w: float) -> void:

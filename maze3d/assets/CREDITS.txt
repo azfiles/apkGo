@@ -1,6 +1,10 @@
-Pipi Maze · 灯火遗迹 0.2.0
-Original game meshes, material palette, icon, level system and synthesized sound created for this project.
-11 editable glTF assets; Blender source and generator included in source distribution.
-Fonts: Noto Sans CJK SC / Noto Serif CJK SC (SIL Open Font License); URW font license included for the existing Latin face.
+Pipi Maze · 灯火遗迹 0.2.1
+Brown / ブラウン / 布朗 is a character from Oshiri Tantei.
+Character rights: © トロル・ポプラ社／おしりたんてい製作委員会 and respective rights holders.
+The included Brown mesh is an unofficial 3D fan reconstruction made for this prototype, not an official production model.
+Reference: https://oshiri-tantei.com/character/?char=char-brown
+Additional official reference: https://oshiri-tantei.com/story/story44.html
+Scene models, game mechanics, material patterns, icon and synthesized sound created for this project.
+Editable glTF assets, Blender source and generators included in source distribution.
+Fonts: Noto CJK (SIL Open Font License); URW font license included for the Latin face.
 Engine: Godot 4.6.3 (MIT). See GODOT-LICENSE.txt and GODOT-COPYRIGHT.txt.
-No third-party character illustrations or stock model dependencies.

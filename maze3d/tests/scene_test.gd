@@ -31,7 +31,7 @@ func run() -> void:
 		app.chapter=chapter;app.start_game(false);await frames(6)
 		var w=app.world
 		check(w.camera.projection==Camera3D.PROJECTION_PERSPECTIVE,"perspective camera")
-		check(w.joints.size()==7,"articulated real 3D model")
+		check(w.joints.size()==9,"Brown head, limbs, ears and satchel articulation")
 		var spawn:Vector3=w.player.position
 		# Walk into boundary for two seconds: physical capsule must not cross it.
 		app.joystick=Vector2(-1,0);await frames(130);app.joystick=Vector2.ZERO

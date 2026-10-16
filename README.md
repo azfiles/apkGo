@@ -1,4 +1,12 @@
-# Pipi Maze · 花园捉迷藏 / Godot 2.5D
+# Pipi Maze · 灯火遗迹 / 第三人称 3D
+
+当前体验版 **0.2.1：布朗角色更新**。依据《屁屁侦探》官方立绘重建布朗，保留三章迷宫、双指移动与环顾、引路、点灯、收集及自动存档。
+
+[下载 Android APK](https://github.com/azfiles/apkGo/releases/download/maze-3d-v0.2.1/Pipi-Maze-Ruins-0.2.1.apk) · [完整发布与模型源文件](https://github.com/azfiles/apkGo/releases/tag/maze-3d-v0.2.1) · [游戏说明](maze3d/README.md) · [布朗参考与模型说明](docs/maze3d/BROWN.md)
+
+![布朗 3D 模型实际渲染](docs/maze3d/brown/02-three-quarter.png)
+
+## 早期版本：花园捉迷藏 / Godot 2.5D
 
 新增独立的 Godot 迷宫游戏首版 `0.1.0`。复用 `azfiles/pipi-maze` 的布朗、屁屁侦探和小考拉原图，以正交三维花园与纸片角色呈现 2.5D 探索。包含晨光花园、池畔回廊、暮色林地三个可完整通关的关卡，支持点击寻路、方向盘 / 键盘、可选自然印记、提示、暂停和本机保存。
 

@@ -174,9 +174,9 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 	dynamic.add_child(player)
 	var shape:=CapsuleShape3D.new();shape.radius=.30;shape.height=1.65
 	var col:=CollisionShape3D.new();col.shape=shape;col.position.y=.83;player.add_child(col)
-	avatar=model("pipi_explorer",player,Vector3.ZERO)
+	avatar=model("brown",player,Vector3.ZERO)
 	avatar.rotation.y=PI
-	for name in ["Torso","Head","ArmL","ArmR","LegL","LegR","ScarfTail"]:
+	for name in ["Torso","Head","ArmL","ArmR","LegL","LegR","EarL","EarR","Satchel"]:
 		var node:=avatar.find_child(name,true,false)
 		if node:joints[name]=node;joint_base[name]=node.position
 	# Gentle contact shadow keeps the character grounded even on low quality.
@@ -260,7 +260,10 @@ func animate_character(dt: float) -> void:
 		joints[name].rotation.x=lerpf(joints[name].rotation.x,a,blend)
 	if joints.has("Torso"):joints.Torso.position.y=joint_base.Torso.y+(absf(sin(walking_phase))*.045 if moving else sin(clock*2)*.012)
 	if joints.has("Head"):joints.Head.rotation.z=sin(walking_phase*.5)*.025 if moving else sin(clock*.8)*.025
-	if joints.has("ScarfTail"):joints.ScarfTail.rotation.x=sin(clock*5)*.12+(.5 if moving else 0)
+	for name in ["EarL","EarR"]:
+		if joints.has(name):joints[name].rotation.z=sin(walking_phase+(.5 if name=="EarL" else -.5))*(.10 if moving else .018)
+	if joints.has("Satchel"):
+		joints.Satchel.rotation.x=sin(walking_phase)*(.09 if moving else .01)
 
 func update_camera(dt: float) -> void:
 	if title_mode:
