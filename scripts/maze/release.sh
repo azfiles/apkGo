@@ -21,7 +21,7 @@ cat docs/maze/RELEASE_NOTES.md > "$NOTES"
 {
   printf '\n\n源码提交：`%s`\n\n验证运行：https://github.com/%s/actions/runs/%s\n\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID"
   printf '```text\n'
-  rg '^(MODEL|SCENE|DESKTOP): [0-9]+ checks, 0 failures$' "$EVIDENCE/reports/"{model,scene,desktop}-report.txt --no-filename
+  grep -hE '^(MODEL|SCENE|DESKTOP): [0-9]+ checks, 0 failures$' "$EVIDENCE/reports/"{model,scene,desktop}-report.txt
   printf '```\n'
 } >> "$NOTES"
 if gh release view "$TAG" --json isDraft,targetCommitish,url > build/maze/existing-release.json 2> build/maze/release-lookup.log; then

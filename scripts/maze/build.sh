@@ -17,10 +17,10 @@ settings += 'export/android/java_sdk_path = ' + json.dumps(os.environ['JAVA_HOME
 Path(os.environ['XDG_CONFIG_HOME'], 'godot', 'editor_settings-4.6.tres').write_text(settings)
 PY
 timeout 120 "$GODOT" --headless --path maze-godot --editor --import > build/maze/export-import-report.txt 2>&1
-if rg -n 'SCRIPT ERROR|ERROR:' build/maze/export-import-report.txt; then exit 1; fi
+if grep -nE 'SCRIPT ERROR|ERROR:' build/maze/export-import-report.txt; then exit 1; fi
 for platform in Android Linux; do
   timeout 300 "$GODOT" --headless --path maze-godot --export-release "$platform" > "build/maze/export-${platform}-report.txt" 2>&1 || { cat "build/maze/export-${platform}-report.txt"; exit 1; }
-  if rg -n 'SCRIPT ERROR|ERROR:' "build/maze/export-${platform}-report.txt"; then exit 1; fi
+  if grep -nE 'SCRIPT ERROR|ERROR:' "build/maze/export-${platform}-report.txt"; then exit 1; fi
 done
 BT="$ANDROID_SDK_ROOT/build-tools/35.0.0"
 "$BT/zipalign" -P 16 -f 4 build/maze/unsigned.apk build/maze/aligned.apk
@@ -31,8 +31,8 @@ APK=build/maze/output/Pipi-Maze-Garden-0.1.0.apk
 "$BT/zipalign" -c -P 16 -v 4 "$APK" >> build/maze/apk-report.txt
 "$BT/aapt2" dump badging "$APK" >> build/maze/apk-report.txt
 "$BT/aapt2" dump permissions "$APK" >> build/maze/apk-report.txt
-rg -q "package: name='com.alex.pipimaze.garden'" build/maze/apk-report.txt
-if rg -n 'android.permission.(INTERNET|RECORD_AUDIO|READ_EXTERNAL_STORAGE)' build/maze/apk-report.txt; then exit 1; fi
+grep -q "package: name='com.alex.pipimaze.garden'" build/maze/apk-report.txt
+if grep -nE 'android.permission.(INTERNET|RECORD_AUDIO|READ_EXTERNAL_STORAGE)' build/maze/apk-report.txt; then exit 1; fi
 chmod +x build/maze/output/Pipi-Maze-Garden.x86_64
 (cd build/maze/output && sha256sum Pipi-Maze-Garden-0.1.0.apk Pipi-Maze-Garden.x86_64 > SHA256SUMS.txt)
 cat build/maze/output/SHA256SUMS.txt
