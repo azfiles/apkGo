@@ -1,0 +1,97 @@
+name: Pipi Maze 3D · verified preview
+on:
+  push:
+    branches: [main, codex/pipi-3d-preview]
+    paths: ['maze3d/**', 'scripts/maze3d/**', 'model-source/maze3d/**', 'docs/maze3d/**', '.github/workflows/maze3d.yml']
+  pull_request:
+    paths: ['maze3d/**', 'scripts/maze3d/**', '.github/workflows/maze3d.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pipi-3d-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install capture tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends xvfb xauth libgl1-mesa-dri libxtst6
+          python3 -m pip install Pillow==11.3.0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Install SDK and matching engine templates
+        run: |
+          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+          bash scripts/maze/setup.sh
+      - name: Verify every chapter through real collisions and interaction
+        run: bash scripts/maze3d/test.sh
+      - name: Export and verify signed APK
+        run: bash scripts/maze3d/build.sh
+      - name: Capture actual game frames
+        run: |
+          mkdir -p build/maze3d/reports docs/maze3d/screenshots
+          timeout 180 xvfb-run -a -s '-screen 0 1280x720x24' "$GODOT" --audio-driver Dummy --path maze3d --script res://tests/capture.gd -- "$PWD/docs/maze3d/screenshots" > build/maze3d/reports/capture.txt 2>&1
+          cat build/maze3d/reports/capture.txt
+          if grep -nE 'SCRIPT ERROR|ERROR:' build/maze3d/reports/capture.txt; then exit 1; fi
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          LP_NUM_THREADS: '4'
+      - name: Enable emulator acceleration
+        run: |
+          sudo chmod 666 /dev/kvm
+      - name: Install and operate the release on Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          target: default
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: false
+          emulator-options: -no-window -gpu swangle -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: python3 scripts/maze3d/android_smoke.py > build/maze3d/reports/android.txt 2>&1 || { cat build/maze3d/reports/android.txt; exit 1; }
+      - name: Package preview
+        run: python3 scripts/maze3d/package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pipi-3d-release
+          path: build/maze3d/release/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pipi-3d-evidence
+          path: |
+            build/maze3d/reports/**
+            build/maze3d/android/**
+            build/maze3d/*report.txt
+            docs/maze3d/screenshots/**
+  publish:
+    needs: verify
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: pipi-3d-release
+          path: build/maze3d/release
+      - name: Publish verified prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd build/maze3d/release
+          sha256sum -c SHA256SUMS.txt
+          printf '\n验证流水线：https://github.com/%s/actions/runs/%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> RELEASE_NOTES.md
+          gh release create maze-3d-v0.2.0 ./* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title 'Pipi Maze · 灯火遗迹 0.2.0 · 3D 体验版' --notes-file RELEASE_NOTES.md

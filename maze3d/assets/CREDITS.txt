@@ -1,0 +1,6 @@
+Pipi Maze · 灯火遗迹 0.2.0
+Original game meshes, material palette, icon, level system and synthesized sound created for this project.
+11 editable glTF assets; Blender source and generator included in source distribution.
+Fonts: Noto Sans CJK SC / Noto Serif CJK SC (SIL Open Font License); URW font license included for the existing Latin face.
+Engine: Godot 4.6.3 (MIT). See GODOT-LICENSE.txt and GODOT-COPYRIGHT.txt.
+No third-party character illustrations or stock model dependencies.

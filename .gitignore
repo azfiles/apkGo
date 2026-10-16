@@ -8,3 +8,5 @@ local.properties
 godot/.godot/
 maze-godot/.godot/
 __pycache__/
+maze3d/.godot/
+*.blend1
