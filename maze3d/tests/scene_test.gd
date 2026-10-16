@@ -23,7 +23,7 @@ func walk(target:Vector2i) -> void:
 	app.joystick=Vector2.ZERO
 	await frames(10)
 func run() -> void:
-	app=load("res://scenes/main.tscn").instantiate();root.add_child(app)
+	app=load("res://scenes/main.tscn").instantiate();root.add_child(app);Engine.max_fps=0
 	await frames(3)
 	check(app.page=="home","home startup")
 	for chapter in 3:
@@ -53,7 +53,7 @@ func run() -> void:
 		app.pointer_down(1,Vector2(150,560));app.pointer_move(1,Vector2(180,510),Vector2(30,-50))
 		app.pointer_down(2,Vector2(800,350));var angle:float=w.yaw
 		app.pointer_move(2,Vector2(860,350),Vector2(60,0));await frames(2)
-		check(app.joystick.length()>.5 and not is_equal_approx(w.yaw,angle),"simultaneous joystick and camera")
+		check(app.joystick.length()>.5 and w.yaw>angle,"simultaneous joystick and camera")
 		app.pointer_up(1);app.pointer_up(2);check(app.joystick==Vector2.ZERO,"release clears movement")
 		w.yaw=0;w.player.position=spawn;await frames(6)
 		# Move continuously along every maze route to each beacon; no objective teleport.

@@ -26,6 +26,7 @@ const SAVE_PATH := "user://ruins-v2.json"
 
 func _ready() -> void:
 	get_tree().auto_accept_quit=false
+	Engine.max_fps=60
 	load_progress()
 	world=World.new();add_child(world)
 	world.picked.connect(func():show_toast("萤光 +1  ·  %d / 12"%world.collected.size(),1.4))
@@ -53,8 +54,8 @@ func _process(dt: float) -> void:
 		if Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT):v.x+=1
 		world.input_move=v.limit_length()
 		world.sprint=sprint_pointer!=-99 or Input.is_physical_key_pressed(KEY_SHIFT)
-		if Input.is_physical_key_pressed(KEY_Q):world.yaw+=dt*1.6
-		if Input.is_physical_key_pressed(KEY_R):world.yaw-=dt*1.6
+		if Input.is_physical_key_pressed(KEY_Q):world.yaw-=dt*1.6
+		if Input.is_physical_key_pressed(KEY_R):world.yaw+=dt*1.6
 		autosave_time+=dt
 		if autosave_time>8:autosave_time=0;save_progress()
 	if ui:ui.queue_redraw()

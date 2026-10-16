@@ -329,7 +329,7 @@ func hint() -> void:
 func reset_camera() -> void:
 	yaw=wrapf(PI-avatar.rotation.y,-PI,PI);pitch=.40
 func orbit(delta: Vector2) -> void:
-	yaw-=delta.x*.005;pitch=clampf(pitch+delta.y*.003,.35,.95)
+	yaw+=delta.x*.005;pitch=clampf(pitch+delta.y*.003,.35,.95)
 func set_quality(high: bool) -> void:
 	high_quality=high;sun.shadow_enabled=high
 	get_viewport().msaa_3d=Viewport.MSAA_2X if high else Viewport.MSAA_DISABLED
