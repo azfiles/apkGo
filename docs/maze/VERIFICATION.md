@@ -1,5 +1,9 @@
 # 0.1.0 交付验证
 
+2026-10-16 已在 `azfiles/apkGo` 发布 [maze-v0.1.0 试玩版](https://github.com/azfiles/apkGo/releases/tag/maze-v0.1.0)。[正式构建与发布运行](https://github.com/azfiles/apkGo/actions/runs/38833251883) 全部成功，发布标签准确指向源码提交 `051a52225a18ebe0571539646c8579c3cdea606d`。
+
+已从公开 Release 下载并复核全部七个附件的 SHA-256，两个 ZIP 的 CRC 检查通过。公开 APK 的 v2 / v3 签名和 16 KB 对齐复核通过；APK SHA-256 为 `a34cb3c139a473fb30a0f2227e1fd80a1ca45eaf966eca9efa4d2ae7023e0d59`，签名证书 SHA-256 为 `5297a73dae676548aac562e668dfd19e1a4f9cef76c28f02b4388e0688c865e2`。其余附件散列见 Release 的 `SHA256SUMS.txt`。
+
 日期：2026-10-15。环境：Godot 4.6.3、Linux x86_64、Mesa llvmpipe、OpenGL Compatibility。结果：**473 项自动检查通过，0 失败**。
 
 | 验证 | 结果 | 内容 |
