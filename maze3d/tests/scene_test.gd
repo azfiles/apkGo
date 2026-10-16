@@ -26,6 +26,7 @@ func run() -> void:
 	app=load("res://scenes/main.tscn").instantiate();root.add_child(app);Engine.max_fps=0
 	await frames(3)
 	check(app.page=="home","home startup")
+	check(not quit_on_go_back,"native Android back must not auto-quit")
 	for chapter in 3:
 		app.chapter=chapter;app.start_game(false);await frames(6)
 		var w=app.world
@@ -81,6 +82,9 @@ func run() -> void:
 	app.action("map");var before:float=app.world.elapsed;await frames(60)
 	check(is_equal_approx(before,app.world.elapsed),"map pauses exploration")
 	app.action("close_map");check(app.world.active,"map returns to play")
+	app._notification(Node.NOTIFICATION_WM_GO_BACK_REQUEST)
+	check(app.page=="pause","Android back opens pause")
+	app.action("resume")
 	app._notification(MainLoop.NOTIFICATION_APPLICATION_FOCUS_OUT)
 	check(app.page=="pause" and not app.world.active,"background loss pauses safely")
 	print("SCENE: ",checks," checks, 0 failures")

@@ -26,6 +26,7 @@ const SAVE_PATH := "user://ruins-v2.json"
 
 func _ready() -> void:
 	get_tree().auto_accept_quit=false
+	get_tree().quit_on_go_back=false
 	Engine.max_fps=60
 	load_progress()
 	world=World.new();add_child(world)
@@ -200,6 +201,8 @@ func _notification(what: int) -> void:
 	elif what==NOTIFICATION_WM_GO_BACK_REQUEST:
 		if page=="play" or page=="map":pause_game()
 		elif page=="pause":action("resume")
+		elif page=="home":save_progress();get_tree().quit()
+		elif page=="win":action("home")
 	elif what==NOTIFICATION_WM_CLOSE_REQUEST:
 		save_progress();get_tree().quit()
 
