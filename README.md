@@ -1,4 +1,14 @@
-# 循光 · 流动数字 / Godot 2.0
+# Pipi Maze · 花园捉迷藏 / Godot 2.5D
+
+新增独立的 Godot 迷宫游戏首版 `0.1.0`。复用 `azfiles/pipi-maze` 的布朗、屁屁侦探和小考拉原图，以正交三维花园与纸片角色呈现 2.5D 探索。包含晨光花园、池畔回廊、暮色林地三个可完整通关的关卡，支持点击寻路、方向盘 / 键盘、可选自然印记、提示、暂停和本机保存。
+
+[工程与操作说明](maze-godot/README.md) · [设计文档](docs/maze/DESIGN.md) · [素材来源](maze-godot/ASSET_SOURCES.md)。打开 `maze-godot/project.godot` 即可运行；`bash scripts/maze/test.sh` 验证规则与场景，`bash scripts/maze/build.sh` 输出独立包名的 Android APK 和 Linux 可执行文件。
+
+[下载迷宫试玩版 APK](https://github.com/azfiles/apkGo/releases/download/maze-v0.1.0/Pipi-Maze-Garden-0.1.0.apk) · [完整 Release 与 Godot 工程](https://github.com/azfiles/apkGo/releases/tag/maze-v0.1.0) · [迷宫构建与发布](https://github.com/azfiles/apkGo/actions/workflows/maze-godot.yml)
+
+![Pipi Maze 花园捉迷藏](docs/maze/screenshots/01-home.png)
+
+## 循光 · 流动数字 / Godot 2.0
 
 Godot 版将舒尔特表变成会漂流、碰撞、反弹的数字球：从 1 开始依次点亮数字，穿过 9 个逐步解锁的关卡。点击冲量、碰撞火花、点亮与通关粒子，配合轻柔音阶；支持星级、最佳纪录、暂停、后台停表和本机进度恢复。
 

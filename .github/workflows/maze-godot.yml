@@ -1,0 +1,81 @@
+name: Pipi Maze · build, verify and release
+on:
+  push:
+    branches: [main]
+    paths: ['maze-godot/**', 'scripts/maze/**', '.github/workflows/maze-godot.yml']
+  pull_request:
+    paths: ['maze-godot/**', 'scripts/maze/**', '.github/workflows/maze-godot.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pipi-maze-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Install pinned Godot engine and templates
+        run: bash scripts/maze/setup.sh
+      - name: Verify maze rules, saves and real scene interaction
+        run: bash scripts/maze/test.sh
+      - name: Build and verify Android and Linux executables
+        run: bash scripts/maze/build.sh
+      - name: Install desktop capture dependency
+        run: python3 -m pip install Pillow==11.3.0
+      - name: Exercise the exported game with system input
+        run: |
+          timeout 120 xvfb-run -a -s '-screen 0 1280x800x24' python3 scripts/maze/desktop-smoke.py > build/maze/desktop-report.txt 2>&1 || { cat build/maze/desktop-report.txt; exit 1; }
+          cat build/maze/desktop-report.txt
+      - name: Capture rendered scenes
+        run: |
+          mkdir -p build/maze/screenshots
+          timeout 120 xvfb-run -a "$GODOT" --audio-driver Dummy --path maze-godot --script res://tests/capture.gd -- "$PWD/build/maze/screenshots" > build/maze/capture-report.txt 2>&1
+          cat build/maze/capture-report.txt
+          if rg -n 'SCRIPT ERROR|ERROR:' build/maze/capture-report.txt; then exit 1; fi
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+      - name: Package source and release evidence
+        run: |
+          python3 scripts/maze/package.py
+          python3 scripts/maze/prepare-release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pipi-maze-release
+          path: build/maze/release/*
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pipi-maze-verification
+          path: |
+            build/maze/*report.txt
+            build/maze/screenshots/**
+            build/maze/desktop-smoke/*.png
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: pipi-maze-release
+          path: build/maze/release
+      - name: Publish the verified maze preview release
+        run: bash scripts/maze/release.sh
+        env:
+          GH_TOKEN: ${{ github.token }}

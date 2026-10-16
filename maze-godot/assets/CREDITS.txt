@@ -1,0 +1,8 @@
+Pipi Maze · 花园捉迷藏 0.1.0
+非官方个人兴趣原型。三维花园、迷宫布局、自然印记和交互为原创适配。
+角色 PNG 复用自 https://github.com/azfiles/pipi-maze
+原始来源：https://oshiri-tantei.com/character/
+© トロル・ポプラ社／おしりたんてい製作委員会及相关原权利人。
+详细来源、原始字节 SHA-256 与适配边界见工程 ASSET_SOURCES.md。
+Godot 4.6.3 / MIT；Noto CJK / SIL OFL；Nimbus / URW Base35。
+本目录随包保留相关许可证。

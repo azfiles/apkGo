@@ -6,4 +6,5 @@ app/src/main/res/raw/
 local.properties
 *.p12
 godot/.godot/
+maze-godot/.godot/
 __pycache__/
