@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[2]
 RELEASE=ROOT/'build/maze3d/release';RELEASE.mkdir(parents=True,exist_ok=True)
 for old in RELEASE.iterdir():
     if old.is_file():old.unlink()
-apk=ROOT/'build/maze3d/output/Pipi-Maze-Ruins-0.2.1.apk'
+apk=ROOT/'build/maze3d/output/Pipi-Maze-Ruins-0.3.0.apk'
 shutil.copy2(apk,RELEASE/apk.name)
 
 def archive(name,files):
@@ -17,7 +17,7 @@ files=[]
 for rel in ['maze3d','scripts/maze3d','model-source/maze3d','docs/maze3d']:
     files.extend((ROOT/rel).rglob('*'))
 files.extend([ROOT/'signing/demo-signing.p12.base64',ROOT/'scripts/maze/setup.sh'])
-archive('Pipi-Maze-Ruins-0.2.1-Source.zip',files)
+archive('Pipi-Maze-Ruins-0.3.0-Source.zip',files)
 archive('Pipi-Maze-Ruins-3D-Models.zip',list((ROOT/'maze3d/assets/models').glob('*.glb'))+list((ROOT/'model-source/maze3d').glob('*.blend'))+[ROOT/'scripts/maze3d/model_assets.py',ROOT/'scripts/maze3d/brown_model.py',ROOT/'docs/maze3d/BROWN.md'])
 archive('Brown-Character-0.2.1.zip',[ROOT/'maze3d/assets/models/brown.glb',ROOT/'model-source/maze3d/brown_character.blend',ROOT/'scripts/maze3d/brown_model.py',ROOT/'docs/maze3d/BROWN.md']+list((ROOT/'docs/maze3d/brown').glob('*')))
 archive('Pipi-Maze-Ruins-Verification.zip',list((ROOT/'build/maze3d/reports').rglob('*'))+list((ROOT/'build/maze3d/android').rglob('*'))+[ROOT/'build/maze3d/apk-report.txt'])

@@ -10,7 +10,14 @@ func _initialize() -> void:call_deferred("run")
 func walk(target:Vector2i) -> void:
 	var w=app.world
 	var route:Array=w.maze.path(w.maze.cell(w.player.position),target)
-	for cell in route:
+	var route_index:=0
+	while route_index<route.size():
+		var cell:Vector2i=route[route_index]
+		var obstacle:Dictionary=w.maze.challenge_at(cell)
+		# Continue to the far landing instead of stopping on a rail or in midair.
+		if not obstacle.is_empty() and route_index+1<route.size():
+			route_index+=1;cell=route[route_index]
+		route_index+=1
 		var destination:Vector3=w.maze.world(cell)
 		var ticks:=0
 		while w.flat_distance(w.player.position,destination)>.13 and ticks<350:
@@ -18,10 +25,16 @@ func walk(target:Vector2i) -> void:
 			var f:=Vector3(sin(w.yaw),0,-cos(w.yaw));var r:=Vector3(cos(w.yaw),0,sin(w.yaw))
 			var speed:float=minf(1,diff.length()/.5)
 			app.joystick=Vector2(diff.normalized().dot(r),-diff.normalized().dot(f))*speed
+			if not obstacle.is_empty() and w.player.is_on_floor():
+				var center:Vector3=w.maze.world(obstacle.cell)
+				if w.flat_distance(w.player.position,center)<1.32:w.request_jump()
 			ticks+=1;await physics_frame
 		check(ticks<350,"physically walk route cell "+str(cell))
 	app.joystick=Vector2.ZERO
 	await frames(10)
+	var mote_index:int=w.maze.motes.find(target)
+	if mote_index in w.maze.elevated_motes and mote_index not in w.collected:
+		w.request_jump();await frames(55)
 func run() -> void:
 	app=load("res://scenes/main.tscn").instantiate();root.add_child(app);Engine.max_fps=0
 	await frames(3)

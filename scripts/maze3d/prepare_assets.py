@@ -21,6 +21,7 @@ save('beacon',1.7,lambda t:chord(t,[440,554.37,659.25,880]))
 save('hint',1,lambda t:chord(t,[659.25,880,987.77]))
 save('win',2.7,lambda t:chord(t,[392,493.88,587.33,783.99,987.77,1174.66]))
 save('step',.14,lambda t:(random.random()-.5)*.35*math.exp(-t*38)+math.sin(t*100*math.tau)*.16*math.exp(-t*45))
+save('jump',.28,lambda t:math.sin(math.tau*(280*t+500*t*t))*.20*math.sin(math.pi*t/.28)**2)
 # A seamless, sparse ambient pad, with harmonics quantized to the 24-second loop.
 def ambient(t):
     pad=sum(math.sin(t*math.tau*f)*v for f,v in [(130.833333,.12),(196,.065),(261.666667,.055),(329.625,.035)])
@@ -28,4 +29,4 @@ def ambient(t):
     bells=sum(note(t-off,fr)*.13 for off,fr in [(3,659.25),(7,587.33),(12,440),(17,783.99),(21,659.25)])
     return pad+bells
 save('ambience',24,ambient)
-print('ASSETS: subset fonts and seven original synthesized audio cues')
+print('ASSETS: subset fonts and eight original synthesized audio cues')

@@ -1,8 +1,8 @@
 # Pipi Maze · 灯火遗迹 / 第三人称 3D
 
-当前体验版 **0.2.1：布朗角色更新**。依据《屁屁侦探》官方立绘重建布朗，保留三章迷宫、双指移动与环顾、引路、点灯、收集及自动存档。
+当前开发版 **0.3.0：跳跃挑战与首页角色查看**。基于布朗 0.2.1 版本加入键盘 / 触屏跳跃、矮石栏、断桥、高处萤光和安全复位；首页支持 360° 环绕、俯仰、缩放及回正。构建方式见 [游戏说明](maze3d/README.md)。
 
-[下载 Android APK](https://github.com/azfiles/apkGo/releases/download/maze-3d-v0.2.1/Pipi-Maze-Ruins-0.2.1.apk) · [完整发布与模型源文件](https://github.com/azfiles/apkGo/releases/tag/maze-3d-v0.2.1) · [游戏说明](maze3d/README.md) · [布朗参考与模型说明](docs/maze3d/BROWN.md)
+[上一版 0.2.1 Android APK](https://github.com/azfiles/apkGo/releases/download/maze-3d-v0.2.1/Pipi-Maze-Ruins-0.2.1.apk) · [完整发布与模型源文件](https://github.com/azfiles/apkGo/releases/tag/maze-3d-v0.2.1) · [游戏说明](maze3d/README.md) · [布朗参考与模型说明](docs/maze3d/BROWN.md)
 
 ![布朗 3D 模型实际渲染](docs/maze3d/brown/02-three-quarter.png)
 

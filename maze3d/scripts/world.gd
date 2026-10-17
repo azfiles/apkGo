@@ -5,6 +5,10 @@ signal escaped
 signal message(text: String)
 const Maze = preload("res://scripts/maze.gd")
 const MODEL_PATH := "res://assets/models/"
+const GRAVITY := 18.0
+const JUMP_SPEED := 6.8
+const COYOTE_TIME := .10
+const JUMP_BUFFER := .12
 var maze = Maze.new()
 var player: CharacterBody3D
 var avatar: Node3D
@@ -57,6 +61,17 @@ var last_position := Vector3.ZERO
 var walking_phase := 0.0
 var low_speed := 0.0
 var wall_materials: Dictionary = {}
+var jump_buffer := 0.0
+var coyote_time := 0.0
+var jumps := 0
+var rescues := 0
+var safe_position := Vector3.ZERO
+var contact_shadow: MeshInstance3D
+var challenge_tip := ""
+var preview_yaw := -.5
+var preview_pitch := .18
+var preview_distance := 6.0
+var preview_auto := false
 
 func _ready() -> void:
 	var environment := WorldEnvironment.new()
@@ -97,6 +112,7 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 	input_move=Vector2.ZERO;sprint=false;energy=1.0;elapsed=0.0;clock=0.0
 	activated.clear();collected.clear();light_nodes.clear();mote_nodes.clear();joints.clear();joint_base.clear();fx.clear();lantern_positions.clear()
 	hint_time=0;hint_cooldown=0;hints_used=0;near_beacon=-1;near_gate=false
+	jump_buffer=0;coyote_time=0;jumps=0;rescues=0;challenge_tip="";reset_preview()
 	if geo:remove_child(geo);geo.queue_free()
 	if dynamic:remove_child(dynamic);dynamic.queue_free()
 	geo=Node3D.new();add_child(geo)
@@ -104,8 +120,8 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 	maze.build(chapter)
 	var rng:=RandomNumberGenerator.new();rng.seed=591+chapter
 	var size:float=maze.width*Maze.TILE
-	box(Vector3(size+3,.6,size+3),Vector3(0,-.35,0),"263f48",geo)
-	collider(Vector3(size+4,.6,size+4),Vector3(0,-.35,0))
+	# Individual floor colliders leave real openings beneath broken bridges.
+	box(Vector3(size+3,.35,size+3),Vector3(0,-4,0),"193b4b",geo)
 	# One shared mesh per material; _batch_static consolidates into GPU instances.
 	var tile_mesh:=BoxMesh.new();tile_mesh.size=Vector3(3.96,.10,3.96)
 	var mark_mesh:=BoxMesh.new();mark_mesh.size=Vector3(.40,.012,.055)
@@ -116,20 +132,27 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 			var cell:=Vector2i(x,z)
 			var p:Vector3=maze.world(cell)
 			if maze.walkable(cell):
+				var challenge:Dictionary=maze.challenge_at(cell)
+				if challenge.get("kind","")=="gap":
+					build_gap(p,challenge)
+					continue
 				var tile:=MeshInstance3D.new();tile.mesh=tile_mesh;tile.material_override=tile_mats[rng.randi_range(0,3)];tile.position=p-Vector3(0,.07,0);geo.add_child(tile)
+				collider(Vector3(4,.6,4),p-Vector3(0,.32,0))
+				if not challenge.is_empty():build_hurdle(p,challenge)
 				for k in 3:
 					var mark:=mesh(mark_mesh,mark_mat,geo,p+Vector3(rng.randf_range(-1.6,1.6),-.008,rng.randf_range(-1.6,1.6)));mark.rotation.y=PI/2 if k%2==0 else 0.0
-				if rng.randf()<.34:
+				if rng.randf()<.34 and challenge.is_empty():
 					var grass:=model("grass",geo,p+Vector3(1.56,.02,1.54));grass.rotation.y=rng.randf()*TAU
-				if rng.randf()<.12 and cell!=maze.start:
+				if rng.randf()<.12 and cell!=maze.start and challenge.is_empty():
 					var pos:=p+Vector3(1.42,0,1.42)
-					model("lantern",geo,pos);lantern_positions.append(pos+Vector3(0,1.7,0))
+					var lantern:=model("lantern",geo,pos);apply_wall_material(lantern);lantern_positions.append(pos+Vector3(0,1.7,0))
 			else:
 				var wall:=model("wall_"+str(rng.randi_range(0,2)),geo,p)
 				apply_wall_material(wall)
 				collider(Vector3(4,2.35,4),p+Vector3(0,1.15,0))
 				if (x==0 or z==0 or x==maze.width-1 or z==maze.width-1) and (x+z)%3==0:
 					var tree:=model("tree_"+str(chapter%2),geo,p+Vector3(0,2.25,0));tree.rotation.y=rng.randf()*TAU;tree.scale=Vector3.ONE*rng.randf_range(.85,1.35)
+					apply_wall_material(tree)
 	# Distant low-poly ridgelines frame the ruins and give the horizon depth.
 	var mountain:=CylinderMesh.new();mountain.top_radius=0;mountain.bottom_radius=1;mountain.height=1;mountain.radial_segments=7
 	for i in 16:
@@ -140,7 +163,7 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 	# Start plaza: inset mosaic, four welcoming lamps, and a tree on the edge.
 	var start_p:Vector3=maze.world(maze.start)
 	for ofs in [Vector3(-1.5,0,-1.5),Vector3(1.5,0,-1.5)]:
-		model("lantern",geo,start_p+ofs);lantern_positions.append(start_p+ofs+Vector3(0,1.7,0))
+		var lantern:=model("lantern",geo,start_p+ofs);apply_wall_material(lantern);lantern_positions.append(start_p+ofs+Vector3(0,1.7,0))
 	ring(1.25,.035,start_p+Vector3(0,.03,0),Color("d5bd83"),geo)
 	for i in 3:
 		var p:Vector3=maze.world(maze.beacons[i])+Vector3(1.05,0,-1.05)
@@ -150,12 +173,14 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 		var orb:=model("crystal",dynamic,p+Vector3(0,1.85,0))
 		light_nodes.append(orb)
 	for i in maze.motes.size():
-		var p:Vector3=maze.world(maze.motes[i])+Vector3(0,.85,0)
+		var p:Vector3=maze.world(maze.motes[i])+Vector3(0,maze.mote_height(i),0)
 		var orb:=Node3D.new();orb.position=p;dynamic.add_child(orb)
 		var gem:=SphereMesh.new();gem.radius=.12;gem.height=.24;gem.radial_segments=8;gem.rings=4
 		mesh(gem,material("ffdc8f",true),orb,Vector3.ZERO)
 		ring(.26,.018,Vector3.ZERO,Color("ffcf81"),orb).rotation.x=PI/2
 		mote_nodes.append(orb)
+		if i in maze.elevated_motes:
+			ring(.55,.025,maze.world(maze.motes[i])+Vector3(0,.02,0),Color("ffdc8f"),geo)
 	gate=Node3D.new();gate.position=maze.world(maze.goal);dynamic.add_child(gate)
 	var adjacent:Array=maze.neighbors(maze.goal)
 	if not adjacent.is_empty():
@@ -182,8 +207,9 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 	# Gentle contact shadow keeps the character grounded even on low quality.
 	var shadow_mat:=StandardMaterial3D.new();shadow_mat.albedo_color=Color(0.02,.08,.09,.24);shadow_mat.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA;shadow_mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
 	var shadow:=CylinderMesh.new();shadow.top_radius=.36;shadow.bottom_radius=.36;shadow.height=.008
-	mesh(shadow,shadow_mat,player,Vector3(0,.008,0))
+	contact_shadow=mesh(shadow,shadow_mat,dynamic,start_p+Vector3(0,.008,0))
 	yaw=0;pitch=.40
+	safe_position=start_p+Vector3(0,.08,0)
 	if not saved.is_empty():restore(saved)
 	for i in activated:add_beam(i)
 	update_gate()
@@ -199,7 +225,7 @@ func _physics_process(dt: float) -> void:
 		var orb:=light_nodes[i];orb.position.y=1.85+sin(clock*2+i)*.13;orb.rotation.y=clock*.7
 		orb.scale=Vector3.ONE*(.75 if i in activated else 1.0)
 	for i in mote_nodes.size():
-		mote_nodes[i].position.y=.85+sin(clock*2.8+i)*.14;mote_nodes[i].rotation.y=clock
+		mote_nodes[i].position.y=maze.mote_height(i)+sin(clock*2.8+i)*.14;mote_nodes[i].rotation.y=clock
 	if active:
 		elapsed+=dt;hint_time=maxf(0,hint_time-dt);hint_cooldown=maxf(0,hint_cooldown-dt)
 		route_root.visible=hint_time>0
@@ -214,29 +240,46 @@ func _physics_process(dt: float) -> void:
 		var target:=direction*speed
 		player.velocity.x=move_toward(player.velocity.x,target.x,dt*18)
 		player.velocity.z=move_toward(player.velocity.z,target.z,dt*18)
-		player.velocity.y-=18*dt
+		jump_buffer=maxf(0,jump_buffer-dt)
+		coyote_time=COYOTE_TIME if player.is_on_floor() else maxf(0,coyote_time-dt)
+		if jump_buffer>0 and coyote_time>0:
+			player.velocity.y=JUMP_SPEED;jump_buffer=0;coyote_time=0;jumps+=1
+			tone("jump");haptic(15)
+			burst(player.position+Vector3(0,.08,0),Color("d1e7d4"),7)
+		var was_grounded:=player.is_on_floor()
+		player.velocity.y-=GRAVITY*dt
 		player.move_and_slide()
+		if player.position.y< -2.5:rescue()
+		if not was_grounded and player.is_on_floor():
+			burst(player.position+Vector3(0,.06,0),Color("d1e7d4"),6)
 		var traveled:=Vector2(player.position.x-last_position.x,player.position.z-last_position.z).length()
 		moving=traveled>.003
 		walking_phase+=traveled*7
 		if moving:
 			avatar.rotation.y=lerp_angle(avatar.rotation.y,atan2(direction.x,direction.z),minf(1,dt*12))
-			foot_time+=traveled
+			foot_time+=traveled if player.is_on_floor() else 0.0
 			if foot_time>.9:
 				foot_time=0
 				if not muted:step_audio.pitch_scale=randf_range(.9,1.15);step_audio.play()
 		var c:Vector2i=maze.cell(player.position)
+		if player.is_on_floor() and absf(player.position.y)<.1 and maze.safe_cell(c) and flat_distance(player.position,maze.world(c))<.7:
+			safe_position=maze.world(c)+Vector3(0,.08,0)
 		maze.reveal(c)
 		near_beacon=-1;near_gate=false
 		for i in light_nodes.size():
-			if i not in activated and flat_distance(player.position,light_nodes[i].position)<1.65:near_beacon=i
+			if i not in activated and player.is_on_floor() and flat_distance(player.position,light_nodes[i].position)<1.65:near_beacon=i
 		for i in mote_nodes.size():
-			if i not in collected and flat_distance(player.position,mote_nodes[i].position)<.7:
+			if i not in collected and (player.position+Vector3(0,.85,0)).distance_to(mote_nodes[i].position)<.72:
 				collected.append(i);mote_nodes[i].visible=false;burst(mote_nodes[i].position,Color("ffdc8f"));tone("mote");picked.emit()
-		near_gate=flat_distance(player.position,gate.position)<1.8
+		near_gate=player.is_on_floor() and flat_distance(player.position,gate.position)<1.8
+		update_challenge_tip()
 		last_position=player.position
 	else:
-		moving=false;player.velocity=Vector3.ZERO
+		# Pausing in flight preserves vertical speed, without advancing physics.
+		moving=false
+	contact_shadow.position=Vector3(player.position.x,.008,player.position.z)
+	contact_shadow.visible=player.position.y>=-.05 and maze.challenge_at(maze.cell(player.position)).get("kind","")!="gap"
+	contact_shadow.scale=Vector3.ONE*clampf(1-player.position.y*.22,.5,1)
 	animate_character(dt)
 	update_camera(dt)
 	update_fx(dt)
@@ -257,6 +300,8 @@ func animate_character(dt: float) -> void:
 		if not joints.has(name):continue
 		var sign:=1.0 if name in ["ArmL","LegR"] else -1.0
 		var a:=sin(walking_phase)*.65*sign if moving else sin(clock*1.5)*.025*sign
+		if not title_mode and not player.is_on_floor():
+			a=-.8 if name.begins_with("Arm") else (.65 if name=="LegL" else -.35)
 		joints[name].rotation.x=lerpf(joints[name].rotation.x,a,blend)
 	if joints.has("Torso"):joints.Torso.position.y=joint_base.Torso.y+(absf(sin(walking_phase))*.045 if moving else sin(clock*2)*.012)
 	if joints.has("Head"):joints.Head.rotation.z=sin(walking_phase*.5)*.025 if moving else sin(clock*.8)*.025
@@ -269,9 +314,14 @@ func update_camera(dt: float) -> void:
 	if title_mode:
 		var p:Vector3=maze.world(maze.start)+Vector3(4,0,-4)
 		player.position=p;avatar.rotation.y=-.5
-		var cam:=p+Vector3(-3.0+sin(clock*.10)*.25,2.65,5.5)
-		camera.position=cam;camera.look_at(p+Vector3(-2.2,1.15,-.6))
-		for mat in wall_materials.values():mat.set_shader_parameter("cutaway",false)
+		if preview_auto:preview_yaw=wrapf(preview_yaw+dt*.24,-PI,PI)
+		var focus:=p+Vector3(0,1.1,0)
+		var right:=Vector3(cos(preview_yaw),0,-sin(preview_yaw))
+		var offset:=Vector3(sin(preview_yaw)*cos(preview_pitch),sin(preview_pitch),cos(preview_yaw)*cos(preview_pitch))*preview_distance
+		var framing:=right*preview_distance*.24
+		camera.position=focus+offset-framing;camera.look_at(focus-framing);camera.fov=42
+		for mat in wall_materials.values():
+			mat.set_shader_parameter("hero",p);mat.set_shader_parameter("eye",camera.position);mat.set_shader_parameter("cutaway",true)
 		return
 	var focus:=player.global_position+Vector3(0,1.35,0)
 	var distance:=6.8+(.65 if sprint and moving else 0.0)
@@ -327,7 +377,71 @@ func hint() -> void:
 			var gem:=SphereMesh.new();gem.radius=.065;gem.height=.055;gem.radial_segments=6;gem.rings=3
 			mesh(gem,material("ffe6a4",true),route_root,p)
 	hint_time=8;hint_cooldown=13;hints_used+=1;route_root.visible=true;tone("hint");haptic(20)
-	message.emit("跟随地面的金色光迹 · 持续 8 秒")
+	message.emit("跟随金色光迹 · 石栏与断桥需要跳跃")
+
+func request_jump() -> bool:
+	if not active or title_mode:return false
+	jump_buffer=JUMP_BUFFER
+	return true
+
+func rescue() -> void:
+	player.position=safe_position;player.velocity=Vector3.ZERO
+	input_move=Vector2.ZERO;jump_buffer=0;coyote_time=0;rescues+=1
+	last_position=player.position;camera_ready=false
+	message.emit("已回到安全落脚点 · 灯塔和萤光进度保留")
+
+func update_challenge_tip() -> void:
+	challenge_tip=""
+	for challenge in maze.challenges:
+		if flat_distance(player.position,maze.world(challenge.cell))<4.6:
+			challenge_tip="断桥 · 靠近金色边线起跳" if challenge.kind=="gap" else "矮石栏 · 移动时跳跃越过"
+			return
+	for i in maze.elevated_motes:
+		if i not in collected and flat_distance(player.position,mote_nodes[i].position)<2.6:
+			challenge_tip="高处萤光 · 站在光环内跳起收集";return
+
+func build_hurdle(p: Vector3,challenge: Dictionary) -> void:
+	var along_x:bool=challenge.axis.x!=0
+	var height:float=challenge.height
+	var size:=Vector3(.65,height,4) if along_x else Vector3(4,height,.65)
+	box(size,p+Vector3(0,height/2-.02,0),"587777",geo)
+	collider(size,p+Vector3(0,height/2-.02,0))
+	var trim:=Vector3(.70,.05,3.9) if along_x else Vector3(3.9,.05,.70)
+	box(trim,p+Vector3(0,height,0),"c4b284",geo)
+	jump_marks(p,challenge)
+
+func build_gap(p: Vector3,challenge: Dictionary) -> void:
+	var axis:=Vector3(challenge.axis.x,0,challenge.axis.y)
+	var span:float=challenge.span
+	var length:float=(Maze.TILE-span)/2
+	var size:=Vector3(length,.6,4) if challenge.axis.x!=0 else Vector3(4,.6,length)
+	for side in [-1,1]:
+		var center:Vector3=p+axis*side*(Maze.TILE+span)/4-Vector3(0,.32,0)
+		box(size,center,"718585",geo);collider(size,center)
+	var water_size:=Vector3(span,.06,3.98) if challenge.axis.x!=0 else Vector3(3.98,.06,span)
+	box(water_size,p-Vector3(0,1.5,0),"255564",geo)
+	jump_marks(p,challenge)
+
+func jump_marks(p: Vector3,challenge: Dictionary) -> void:
+	var axis:=Vector3(challenge.axis.x,0,challenge.axis.y)
+	var side:=Vector3(-axis.z,0,axis.x)
+	var length:float=challenge.span/2+.38 if challenge.kind=="gap" else .98
+	for sign_ in [-1,1]:
+		var center:Vector3=p+axis*sign_*length+Vector3(0,.025,0)
+		var stripe:=Vector3(.07,.025,3.7) if challenge.axis.x!=0 else Vector3(3.7,.025,.07)
+		box(stripe,center,"d9ba72",geo)
+		for k in [-1,1]:
+			var arrow:=box(Vector3(.045,.025,.30),center+axis*sign_*.22+side*k*.12,"ead39b",geo)
+			arrow.rotation.y=atan2(axis.x,axis.z)+k*sign_*PI/4
+
+func reset_preview() -> void:
+	preview_yaw=-.5;preview_pitch=.18;preview_distance=6.0;preview_auto=false
+func orbit_preview(delta: Vector2) -> void:
+	preview_auto=false
+	preview_yaw=wrapf(preview_yaw-delta.x*.008,-PI,PI)
+	preview_pitch=clampf(preview_pitch+delta.y*.006,-.06,1.25)
+func zoom_preview(factor: float) -> void:
+	preview_distance=clampf(preview_distance*factor,3.8,8.0)
 
 func reset_camera() -> void:
 	yaw=wrapf(PI-avatar.rotation.y,-PI,PI);pitch=.40
@@ -340,7 +454,10 @@ func set_quality(high: bool) -> void:
 func snapshot() -> Dictionary:
 	var explored:Array=[]
 	for c in maze.seen:explored.append([c.x,c.y])
-	return {"chapter":maze.chapter,"position":[player.position.x,player.position.z],"activated":activated.duplicate(),"collected":collected.duplicate(),"elapsed":elapsed,"seen":explored,"hints":hints_used,"yaw":yaw,"pitch":pitch}
+	# Save a supported landing point, never an airborne position above a gap.
+	var p:=safe_position
+	if player.is_on_floor() and maze.safe_cell(maze.cell(player.position)):p=player.position
+	return {"chapter":maze.chapter,"position":[p.x,p.z],"activated":activated.duplicate(),"collected":collected.duplicate(),"elapsed":elapsed,"seen":explored,"hints":hints_used,"yaw":yaw,"pitch":pitch,"jumps":jumps,"rescues":rescues}
 func restore(data: Dictionary) -> void:
 	# Only restore valid, walkable positions and bounded progress values.
 	var p=data.get("position",[])
@@ -350,18 +467,23 @@ func restore(data: Dictionary) -> void:
 			# Snap to tile center if saved within the collision margin of a wall.
 			var c:Vector2i=maze.cell(v);var center:Vector3=maze.world(c)
 			if absf(v.x-center.x)>1.55 or absf(v.z-center.z)>1.55:v=center+Vector3(0,.1,0)
-			player.position=v
+			if not maze.safe_cell(c):
+				var route:Array=maze.path(c,maze.start)
+				v=maze.world(route[0] if not route.is_empty() else maze.start)+Vector3(0,.1,0)
+			player.position=v;safe_position=v
 	for i in data.get("activated",[]):
 		if (i is int or i is float) and int(i)>=0 and int(i)<3 and int(i) not in activated:activated.append(int(i))
 	for i in data.get("collected",[]):
 		if (i is int or i is float) and int(i)>=0 and int(i)<mote_nodes.size() and int(i) not in collected:collected.append(int(i));mote_nodes[int(i)].visible=false
 	elapsed=clampf(float(data.get("elapsed",0)),0,99999);hints_used=clampi(int(data.get("hints",0)),0,9999)
+	jumps=clampi(int(data.get("jumps",0)),0,999999);rescues=clampi(int(data.get("rescues",0)),0,999999)
 	yaw=float(data.get("yaw",0));pitch=clampf(float(data.get("pitch",.4)),.35,.95)
 	if not is_finite(yaw):yaw=0
 	for a in data.get("seen",[]):
 		if a is Array and a.size()==2:
 			var c:=Vector2i(int(a[0]),int(a[1]))
 			if c.x>=0 and c.y>=0 and c.x<maze.width and c.y<maze.width:maze.seen[c]=true
+	player.velocity=Vector3.ZERO;jump_buffer=0;coyote_time=0;last_position=player.position
 func tone(name: String) -> void:
 	if muted:return
 	chime_audio.stream=load("res://assets/audio/"+name+".wav");chime_audio.play()

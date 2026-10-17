@@ -12,12 +12,14 @@ var beacons: Array[Vector2i] = []
 var motes: Array[Vector2i] = []
 var seen: Dictionary = {}
 var chapter := 0
+var challenges: Array[Dictionary] = []
+var elevated_motes: Array[int] = []
 func build(index: int) -> void:
 	chapter = clampi(index,0,2)
 	var n := 5 + chapter
 	width = n*2+1
 	start = Vector2i(1,width-2)
-	grid.clear(); beacons.clear(); motes.clear(); seen.clear()
+	grid.clear(); beacons.clear(); motes.clear(); seen.clear();challenges.clear();elevated_motes.clear()
 	for z in width:
 		var row: Array = []
 		for x in width: row.append(1)
@@ -72,7 +74,40 @@ func build(index: int) -> void:
 		if c not in used and dist[c]>2:
 			motes.append(c)
 			if motes.size()>=12:break
+	_build_challenges(dist)
+	for i in mini(2+chapter,motes.size()):elevated_motes.append(i)
 	reveal(start)
+
+func _build_challenges(dist: Dictionary) -> void:
+	# Keep the original maze and objective coordinates stable for existing saves.
+	# Straight corridors provide a clear takeoff and landing on both sides.
+	var candidates: Array[Vector2i] = []
+	for c in dist:
+		if dist[c]<3 or c==goal or c in beacons or c in motes:continue
+		var adjacent:=neighbors(c)
+		if adjacent.size()==2 and adjacent[0]+adjacent[1]==c*2:candidates.append(c)
+	candidates.sort_custom(func(a,b):return dist[a]<dist[b])
+	for c in candidates:
+		var separated:=true
+		for challenge in challenges:
+			if path(c,challenge.cell).size()<3:separated=false;break
+		if not separated:continue
+		var axis:=Vector2i.RIGHT if walkable(c+Vector2i.RIGHT) else Vector2i.DOWN
+		var kind:="hurdle" if challenges.size()%2==0 else "gap"
+		challenges.append({"cell":c,"axis":axis,"kind":kind,"height":.55+chapter*.10,"span":1.0+chapter*.20})
+		if challenges.size()>=3+chapter*2:break
+
+func challenge_at(c: Vector2i) -> Dictionary:
+	for challenge in challenges:
+		if challenge.cell==c:return challenge
+	return {}
+
+func safe_cell(c: Vector2i) -> bool:
+	return walkable(c) and challenge_at(c).is_empty()
+
+func mote_height(index: int) -> float:
+	return 2.05 if index in elevated_motes else .85
+
 func walkable(c: Vector2i) -> bool:
 	return c.x>=0 and c.y>=0 and c.x<width and c.y<width and grid[c.y][c.x]==0
 func neighbors(c: Vector2i) -> Array[Vector2i]:

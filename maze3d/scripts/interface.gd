@@ -14,6 +14,7 @@ const PANEL := Color(.035,.10,.14,.87)
 func factor() -> float:return size.y/720.0 if size.y>0 else 1.0
 func width() -> float:return size.x/factor()
 func logical(p: Vector2) -> Vector2:return p/factor()
+func preview_rect() -> Rect2:return Rect2(width()*.43,86,width()*.57,421)
 func _ready() -> void:mouse_filter=Control.MOUSE_FILTER_IGNORE
 func hit(p: Vector2) -> String:
 	for i in range(buttons.size()-1,-1,-1):
@@ -55,7 +56,7 @@ func draw_home(w: float) -> void:
 	text("PIPI MAZE",Vector2(83,57),24,CREAM,latin)
 	text("3D EXPLORATION",Vector2(240,54),12,SOFT,latin)
 	panel(Rect2(w-218,30,174,33),Color(.04,.12,.16,.6),16)
-	centered("体验版  /  0.2.1",Vector2(w-131,52),14,SOFT)
+	centered("体验版  /  0.3.0",Vector2(w-131,52),14,SOFT)
 	text("A LITTLE LIGHT. A WAY HOME.",Vector2(63,145),14,GOLD,latin)
 	text("灯火",Vector2(58,241),80,CREAM,serif)
 	text("遗迹",Vector2(58,330),80,CREAM,serif)
@@ -66,7 +67,13 @@ func draw_home(w: float) -> void:
 	button("continue" if has_save else "start","继续寻光  →" if has_save else "走进遗迹  →",Rect2(64,483,292,64),true)
 	if has_save:
 		button("start","重新开始所选章节",Rect2(64,559,292,43),false,true)
-	else:text("左手移动  ·  右手环顾  ·  自由探索",Vector2(64,580),15,SOFT)
+	else:text("自由探索  ·  跳跃挑战  ·  高处寻光",Vector2(64,580),15,SOFT)
+	text("布朗  /  360° 角色查看",Vector2(w-574,125),18,CREAM,bold)
+	text("拖动旋转与俯仰 · 滚轮 / 双指缩放",Vector2(w-574,152),14,SOFT)
+	button("preview_auto","停止旋转" if game.world.preview_auto else "自动旋转",Rect2(w-574,462,112,36),false,true)
+	button("preview_out","−",Rect2(w-318,462,42,36),false,true)
+	button("preview_in","+",Rect2(w-266,462,42,36),false,true)
+	button("preview_reset","回到正面",Rect2(w-210,462,126,36),false,true)
 	text("CHOOSE YOUR JOURNEY",Vector2(w-586,526),12,GOLD,latin)
 	for i in 3:
 		var r:=Rect2(w-590+i*180,546,168,102)
@@ -78,6 +85,7 @@ func draw_home(w: float) -> void:
 		text(game.world.maze.TITLES[i],r.position+Vector2(16,60),22,CREAM,bold)
 		text(["入门 · 庭院","进阶 · 回廊","挑战 · 深境"][i],r.position+Vector2(16,85),13,SOFT)
 		buttons.append({"id":"chapter%d"%i,"rect":r})
+	draw_rect(Rect2(0,659,w,61),Color(.02,.06,.09,.55))
 	line(Vector2(64,672),Vector2(w-48,672))
 	text("3D 迷宫体验 Demo",Vector2(64,698),13,SOFT)
 	text("离线游玩  /  自动保存  /  无时间限制",Vector2(w-340,698),13,SOFT)
@@ -111,9 +119,12 @@ func draw_hud(w: float) -> void:
 		if game.tutorial_time>0:
 			panel(Rect2(w/2-240,625,480,56),Color(.035,.10,.14,.85),13)
 			centered("左侧滑动移动  ·  右侧拖动环顾",Vector2(w/2,648),17,CREAM)
-			centered("WASD 移动 / Shift 冲刺 / E 互动 / H 引路",Vector2(w/2,670),12,SOFT)
+			centered("WASD 移动 / 空格跳跃 / Shift 冲刺 / E 互动",Vector2(w/2,670),12,SOFT)
 		elif game.world.near_beacon<0 and not game.world.near_gate:
 			centered("右侧拖动环顾  ·  靠近灯塔后点亮",Vector2(w/2,683),13,Color(.85,.92,.91,.68))
+		if game.world.challenge_tip!="":
+			panel(Rect2(w/2-230,554,460,46),Color(.04,.14,.18,.92),16,GOLD.darkened(.5))
+			centered(game.world.challenge_tip,Vector2(w/2,583),18,GOLD)
 		# A nearby world label gives interaction a clear physical anchor.
 		for i in game.world.light_nodes.size():
 			if i in game.world.activated:continue
@@ -149,10 +160,15 @@ func draw_controls(w: float) -> void:
 	else:diamond(hint,11,GOLD,false);diamond(hint,4,GOLD)
 	centered("引路灯",hint+Vector2(0,59),14,CREAM)
 	buttons.append({"id":"hint","rect":Rect2(hint-Vector2(39,39),Vector2(78,78))})
+	var jump:=Vector2(w-228,520)
+	draw_circle(jump,38,Color(.12,.26,.28,.94),true,-1,true)
+	draw_arc(jump,38,0,TAU,48,MINT if game.world.player.is_on_floor() else SOFT.darkened(.3),2,true)
+	centered("跳跃",jump+Vector2(0,7),20,CREAM,bold)
+	buttons.append({"id":"jump","rect":Rect2(jump-Vector2(40,40),Vector2(80,80))})
 	button("camera","回正",Rect2(w-129,384,76,34),false,true)
 	if game.world.near_beacon>=0 or game.world.near_gate:
 		var label:="点亮灯塔  E" if game.world.near_beacon>=0 else ("走进出口  E" if game.world.activated.size()==3 else "查看出口  E")
-		button("interact",label,Rect2(w-280,442,226,56),true)
+		button("interact",label,Rect2(w-280,422,226,48),true)
 
 func draw_pause(w: float) -> void:
 	buttons.clear();draw_rect(Rect2(0,0,w,720),Color(.015,.05,.075,.78))
@@ -191,6 +207,11 @@ func draw_minimap(r: Rect2,full: bool) -> void:
 			var c:=Vector2i(x,z)
 			var p:Vector2=r.position+Vector2(x,z)*tile
 			if maze.seen.has(c):draw_rect(Rect2(p,Vector2.ONE*(tile-.7)),Color("668687") if maze.walkable(c) else Color("233f49"))
+	for challenge in maze.challenges:
+		if maze.seen.has(challenge.cell):
+			var p:=r.position+(Vector2(challenge.cell)+Vector2(.5,.5))*tile
+			var side:=Vector2(-challenge.axis.y,challenge.axis.x)*tile*.38
+			line(p-side,p+side,Color("d7ae71") if challenge.kind=="hurdle" else Color("7dcbd4"),2)
 	for i in 3:
 		var c:Vector2i=maze.beacons[i]
 		if maze.seen.has(c):diamond(r.position+(Vector2(c)+Vector2(.5,.5))*tile,maxf(3,tile*.24),MINT if i in game.world.activated else GOLD)

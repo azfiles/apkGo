@@ -45,7 +45,7 @@ def run():
     adb('shell','settings','put','secure','immersive_mode_confirmations','confirmed')
     adb('shell','settings','put','system','accelerometer_rotation','0')
     adb('shell','input','keyevent','82')
-    apk=ROOT/'build/maze3d/output/Pipi-Maze-Ruins-0.2.1.apk'
+    apk=ROOT/'build/maze3d/output/Pipi-Maze-Ruins-0.3.0.apk'
     check(b'Success' in adb('install','--no-incremental','-r',str(apk),timeout=180),'install signed APK')
     adb('shell','pm','clear',PACKAGE);adb('logcat','-c');checkpoint()
     check(b'Status: ok' in adb('shell','am','start','-W','-n',PACKAGE+'/com.godot.game.GodotAppLauncher'),'release activity starts')
