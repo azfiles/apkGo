@@ -147,8 +147,11 @@ jobs:
           if-no-files-found: ignore
   smoke:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      LP_NUM_THREADS: '4'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -167,12 +170,12 @@ jobs:
       - run: python3 -m pip install Pillow
       - uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 29
           arch: x86_64
-          target: google_apis
-          profile: pixel_5
-          disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          target: default
+          profile: pixel_2
+          disable-animations: false
+          emulator-options: -no-window -gpu swangle -no-snapshot -noaudio -no-boot-anim -camera-back none
           script: python3 scripts/unity/android-smoke.py
       - uses: actions/upload-artifact@v4
         if: always()

@@ -60,15 +60,26 @@ def log_preview(path):
         print('PIPI_PREVIEW_FRAME:' + path.stem + ':' + base64.b64encode(buffer.getvalue()).decode(), flush=True)
 
 
+def launch():
+    component = adb('shell', 'cmd', 'package', 'resolve-activity', '--brief', '-a',
+                    'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', APP).strip().splitlines()[-1]
+    assert component.startswith(APP + '/'), 'Missing Unity launcher activity: ' + component
+    result = adb('shell', 'am', 'start', '-W', '-a', 'android.intent.action.MAIN',
+                 '-c', 'android.intent.category.LAUNCHER', '-f', '0x10200000', '-n', component)
+    print(result, flush=True)
+    assert 'Status: ok' in result and 'Error:' not in result, 'Android rejected Unity launch'
+
+
 try:
-    adb('install', '-r', 'build/unity-release/Pipi-Maze-Unity-0.1.0.apk')
+    adb('install', '--no-incremental', '-r', 'build/unity-release/Pipi-Maze-Unity-0.1.0.apk')
     adb('shell', 'wm', 'size', '720x1280')
     adb('shell', 'wm', 'density', '240')
     adb('shell', 'settings', 'put', 'secure', 'immersive_mode_confirmations', 'confirmed')
     adb('shell', 'settings', 'put', 'system', 'accelerometer_rotation', '0')
     adb('shell', 'input', 'keyevent', '82')
+    time.sleep(5)
     adb('logcat', '-c')
-    adb('shell', 'monkey', '-p', APP, '-c', 'android.intent.category.LAUNCHER', '1')
+    launch()
     expect('PIPI_EVENT: WORLD_READY first_light', 90)
     expect('PIPI_EVENT: HOME', 90)
     time.sleep(3)
@@ -105,7 +116,7 @@ try:
     time.sleep(5)
     adb('shell', 'am', 'force-stop', APP)
     adb('logcat', '-c')
-    adb('shell', 'monkey', '-p', APP, '-c', 'android.intent.category.LAUNCHER', '1')
+    launch()
     expect('PIPI_EVENT: WORLD_READY starbridge_garden', 60)
     expect('PIPI_EVENT: HOME')
     time.sleep(2)
