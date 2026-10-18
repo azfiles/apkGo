@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Drive the shipped Unity UI on an x86_64 Android emulator; no game-state cheats."""
 import json
+import base64
+import io
 import subprocess
 import time
 from pathlib import Path
@@ -38,10 +40,24 @@ def tap(x, y):
 def shot(name):
     from PIL import Image, ImageStat
     path = OUT / (name + '.png')
-    path.write_bytes(adb('exec-out', 'screencap', '-p', binary=True))
-    with Image.open(path) as img:
-        assert img.width > img.height, 'Unity should render landscape'
-        assert sum(ImageStat.Stat(img.convert('RGB')).stddev) > 25, 'Blank or nearly uniform frame'
+    deadline = time.monotonic() + 75
+    while time.monotonic() < deadline:
+        path.write_bytes(adb('exec-out', 'screencap', '-p', binary=True))
+        with Image.open(path) as img:
+            if img.size == (1280, 720) and sum(ImageStat.Stat(img.convert('RGB')).stddev) > 25:
+                print('PASS: rendered landscape frame ' + name, flush=True)
+                return
+        time.sleep(1)
+    raise AssertionError('Missing nonblank 1280x720 Unity frame: ' + name)
+
+
+def log_preview(path):
+    from PIL import Image
+    with Image.open(path) as source:
+        source.thumbnail((800, 450))
+        buffer = io.BytesIO()
+        source.convert('RGB').save(buffer, format='PNG')
+        print('PIPI_PREVIEW_FRAME:' + path.stem + ':' + base64.b64encode(buffer.getvalue()).decode(), flush=True)
 
 
 try:
@@ -53,6 +69,7 @@ try:
     adb('shell', 'input', 'keyevent', '82')
     adb('logcat', '-c')
     adb('shell', 'monkey', '-p', APP, '-c', 'android.intent.category.LAUNCHER', '1')
+    expect('PIPI_EVENT: WORLD_READY first_light', 90)
     expect('PIPI_EVENT: HOME', 90)
     time.sleep(3)
     shot('01-home')
@@ -96,4 +113,12 @@ try:
     (OUT / 'report.json').write_text(json.dumps(dict(result='PASS', checks=['launch', 'rendered landscape', 'play', 'jump', 'joystick movement', 'hint', 'map', 'pause/resume', 'four authored chapters', 'selected chapter after process recreation'], limitations=['ARM64 physical-device performance', 'full chapter completion', 'Godot save migration', 'multi-touch sprint+jump combination']), indent=2))
     print('PASS: Unity Android launch, visible frames, joystick, jump, hint, map, pause, four chapters and recreation')
 finally:
-    (OUT / 'android-log.txt').write_text(logs())
+    captured = logs()
+    (OUT / 'android-log.txt').write_text(captured)
+    print('PIPI_ANDROID_LOG_BEGIN\n' + captured + '\nPIPI_ANDROID_LOG_END', flush=True)
+    last = OUT / 'last-frame.png'
+    last.write_bytes(adb('exec-out', 'screencap', '-p', binary=True))
+    for name in ('01-home', '02-first-light', '05-chapter-4', 'last-frame'):
+        frame = OUT / (name + '.png')
+        if frame.exists():
+            log_preview(frame)
