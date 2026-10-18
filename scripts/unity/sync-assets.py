@@ -60,7 +60,7 @@ def sync():
                     primitive['attributes'].setdefault(attribute, -1)
         target.with_suffix('.json').write_text(json.dumps(metadata, separators=(',', ':')) + '\n')
         manifest[str(path.relative_to(ROOT))] = hashlib.sha256(path.read_bytes()).hexdigest()
-    (DEST / 'source-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    (DEST / 'source-manifest.json').write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
     print(f'Synced {len(manifest)} authored level/model inputs; original GLB bytes preserved.')
 
 

@@ -19,6 +19,8 @@ namespace PipiMaze.Editor
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"com.alex.pipimaze.unitypreview");
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.LandscapeLeft;PlayerSettings.defaultScreenWidth=1280;PlayerSettings.defaultScreenHeight=720;
             PlayerSettings.colorSpace=ColorSpace.Linear;PlayerSettings.runInBackground=false;
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android,false);
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android,new[]{UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3});
             PlayerSettings.Android.minSdkVersion=AndroidSdkVersions.AndroidApiLevel26;PlayerSettings.Android.targetSdkVersion=AndroidSdkVersions.AndroidApiLevel35;
             PlayerSettings.Android.targetArchitectures=AndroidArchitecture.ARM64|AndroidArchitecture.X86_64;
             int version;PlayerSettings.Android.bundleVersionCode=int.TryParse(Argument("-androidVersionCode"),out version)&&version>=100001?version:100001;

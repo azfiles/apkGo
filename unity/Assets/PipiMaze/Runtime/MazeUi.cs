@@ -37,7 +37,7 @@ namespace PipiMaze
         }
         void Begin(int newPage)
         {
-            if(root){root.gameObject.SetActive(false);Destroy(root.gameObject);}stick=Vector2.zero;world.Move=Vector2.zero;world.Sprint=false;page=newPage;toast=null;status=null;timeLabel=null;interaction=null;fps=null;mapPanel=null;mapOpen=false;
+            if(root){root.gameObject.SetActive(false);Destroy(root.gameObject);}if(mapTexture){Destroy(mapTexture);mapTexture=null;}stick=Vector2.zero;world.Move=Vector2.zero;world.Sprint=false;page=newPage;toast=null;status=null;timeLabel=null;interaction=null;fps=null;mapPanel=null;mapOpen=false;
             var rect=safe.rect;float width=rect.width>0?rect.width:1280,height=rect.height>0?rect.height:720;
             root=Rect(safe,"Page",(width-1280)/2,(height-720)/2,1280,720);
             var look=Panel(root,525,0,755,720,new Color(0,0,0,0));var pointer=look.gameObject.AddComponent<PointerControl>();pointer.Drag=e=>{if(world.Home)world.PreviewYaw+=e.delta.x/canvas.scaleFactor*.30f;else if(world.Active){world.Yaw+=e.delta.x/canvas.scaleFactor*.19f;world.Pitch=Mathf.Clamp(world.Pitch-e.delta.y/canvas.scaleFactor*.14f,9,58);}};
@@ -112,6 +112,7 @@ namespace PipiMaze
         {
             if(!root||!world.Player)return;
             Rect area=Screen.safeArea;safe.anchorMin=new Vector2(area.xMin/Screen.width,area.yMin/Screen.height);safe.anchorMax=new Vector2(area.xMax/Screen.width,area.yMax/Screen.height);
+            Vector2 available=safe.rect.size;float fit=Mathf.Min(available.x/1280,available.y/720);if(fit>0){root.localScale=Vector3.one*fit;root.anchoredPosition=new Vector2((available.x-1280*fit)/2,-(available.y-720*fit)/2);}
             Vector2 keyboard=new Vector2((Input.GetKey(KeyCode.D)||Input.GetKey(KeyCode.RightArrow)?1:0)-(Input.GetKey(KeyCode.A)||Input.GetKey(KeyCode.LeftArrow)?1:0),(Input.GetKey(KeyCode.W)||Input.GetKey(KeyCode.UpArrow)?1:0)-(Input.GetKey(KeyCode.S)||Input.GetKey(KeyCode.DownArrow)?1:0));world.Move=world.Active?(keyboard.sqrMagnitude>0?keyboard:stick):Vector2.zero;
             if(Input.GetKeyDown(KeyCode.Space))world.Jump();if(Input.GetKeyDown(KeyCode.E))world.Interact();if(Input.GetKeyDown(KeyCode.H))world.Hint();if(Input.GetKeyDown(KeyCode.M)&&mapPanel)ToggleMap();
             if(Input.GetKeyDown(KeyCode.LeftShift))world.Sprint=true;if(Input.GetKeyUp(KeyCode.LeftShift))world.Sprint=false;
