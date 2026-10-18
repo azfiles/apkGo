@@ -20,21 +20,26 @@ def logs():
     return adb('logcat', '-d', '-v', 'brief', 'Unity:I', 'AndroidRuntime:E', '*:S')
 
 
-def expect(event, timeout=35):
+def expect(event, timeout=35, since=0):
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         text = logs()
         if 'FATAL EXCEPTION' in text or 'NullReferenceException' in text or 'InvalidOperationException' in text:
             raise AssertionError('Runtime exception; see android-log.txt')
-        if event in text:
+        if event in text[since:]:
             return
         time.sleep(.4)
     raise AssertionError('Missing runtime event: ' + event)
 
 
-def tap(x, y):
-    adb('shell', 'input', 'tap', x, y)
-    time.sleep(.5)
+def tap(x, y, event=None):
+    before = len(logs())
+    # Software rendering can span several hundred milliseconds per frame. Keep
+    # the pointer down across frames, then require a fresh UI transition.
+    adb('shell', 'input', 'swipe', x, y, x, y, '700')
+    if event:
+        expect(event, since=before)
+    time.sleep(.9)
 
 
 def shot(name):
@@ -84,37 +89,38 @@ try:
     expect('PIPI_EVENT: HOME', 90)
     time.sleep(3)
     shot('01-home')
-    tap(250, 558)
-    expect('PIPI_EVENT: PLAY')
+    tap(250, 558, 'PIPI_EVENT: PLAY')
     time.sleep(3)
     shot('02-first-light')
-    tap(1165, 516)
-    expect('PIPI_EVENT: JUMP')
+    tap(1165, 516, 'PIPI_EVENT: JUMP')
     adb('shell', 'input', 'swipe', '143', '583', '143', '515', '4500')
     expect('PIPI_EVENT: MOVED')
-    tap(900, 47)
-    expect('PIPI_EVENT: HINT')
-    tap(1032, 47)
-    expect('PIPI_EVENT: MAP')
+    tap(900, 47, 'PIPI_EVENT: HINT')
+    tap(1032, 47, 'PIPI_EVENT: MAP')
     shot('03-map-and-route')
-    tap(1170, 47)
-    expect('PIPI_EVENT: PAUSE')
+    tap(1170, 47, 'PIPI_EVENT: PAUSE')
     shot('04-pause')
-    tap(640, 267)
-    expect('PIPI_EVENT: RESUME')
+    tap(640, 267, 'PIPI_EVENT: RESUME')
     # Inspect each authored chapter using the same chapter buttons as the user.
     for index, chapter in enumerate(('echo_halls', 'sleeping_stars', 'starbridge_garden'), 1):
-        tap(1170, 47)
-        tap(640, 414)
-        tap(260, 83 + 179 + index * 60 + 25)
-        expect('PIPI_EVENT: WORLD_READY ' + chapter)
+        tap(1170, 47, 'PIPI_EVENT: PAUSE')
+        tap(640, 414, 'PIPI_EVENT: HOME')
+        tap(260, 83 + 179 + index * 60 + 25, 'PIPI_EVENT: WORLD_READY ' + chapter)
         time.sleep(1)
-        tap(250, 558)
+        tap(250, 558, 'PIPI_EVENT: PLAY')
         time.sleep(3)
         shot('05-chapter-' + str(index + 1))
     # Process recreation must return to the selected chapter and reload its save.
     time.sleep(5)
+    tap(1170, 47, 'PIPI_EVENT: PAUSE')
     adb('shell', 'am', 'force-stop', APP)
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
+        stopped = subprocess.run(['adb', 'shell', 'pidof', APP], capture_output=True).stdout.strip() == b''
+        if stopped:
+            break
+        time.sleep(.25)
+    assert stopped, 'Previous Unity process did not stop'
     adb('logcat', '-c')
     launch()
     expect('PIPI_EVENT: WORLD_READY starbridge_garden', 60)
