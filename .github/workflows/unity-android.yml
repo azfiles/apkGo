@@ -53,17 +53,25 @@ jobs:
         with:
           path: build/unity-release
           key: pipi-unity-apk-v1-${{ runner.os }}-${{ hashFiles('unity/**', 'scripts/unity/package.sh', 'signing/demo-signing.p12.base64') }}
-      - name: Reserve disk for the Unity Android image
+      - name: Restore compiled Unity output
+        id: raw-cache
         if: steps.apk-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: build/unity
+          key: pipi-unity-raw-v1-${{ runner.os }}-${{ hashFiles('unity/**') }}
+      - name: Reserve disk for the Unity Android image
+        if: steps.apk-cache.outputs.cache-hit != 'true' && steps.raw-cache.outputs.cache-hit != 'true'
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/swift
           sudo mkdir -p /usr/local/lib/android/sdk
           sudo chown -R "$USER:$USER" /usr/local/lib/android
+          mkdir -p build/unity build/unity-release
       - name: Set preview version code
         id: version
         run: echo "code=$((100000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_OUTPUT"
       - name: Build current Pipi Maze in Unity
-        if: steps.apk-cache.outputs.cache-hit != 'true'
+        if: steps.apk-cache.outputs.cache-hit != 'true' && steps.raw-cache.outputs.cache-hit != 'true'
         uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00 # v4
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -82,6 +90,17 @@ jobs:
           androidVersionCode: ${{ steps.version.outputs.code }}
           androidTargetSdkVersion: 35
           chownFilesTo: 1001:1001
+      - name: Make container output writable by the runner
+        if: steps.apk-cache.outputs.cache-hit != 'true'
+        run: |
+          sudo chown -R "$USER:$USER" build
+          mkdir -p build/unity-release
+      - name: Cache compiled APK before signing
+        if: steps.apk-cache.outputs.cache-hit != 'true' && steps.raw-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: build/unity
+          key: ${{ steps.raw-cache.outputs.cache-primary-key }}
       - uses: actions/setup-java@v4
         if: steps.apk-cache.outputs.cache-hit != 'true'
         with:
@@ -118,6 +137,13 @@ jobs:
         with:
           name: unity-editor-logs
           path: unity/Logs/**
+          if-no-files-found: ignore
+      - name: Preserve the compiled APK even when packaging fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-raw-apk
+          path: build/unity/**/*.apk
           if-no-files-found: ignore
   smoke:
     needs: build
