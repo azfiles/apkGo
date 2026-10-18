@@ -1,4 +1,4 @@
-"""Original low-poly Pipi explorer + modular ruins. Blender 3.4+; exports glTF and source."""
+"""Rounded storybook courtyard modules. Blender 4.3+; exports glTF and source."""
 import bpy, math, random
 from pathlib import Path
 from mathutils import Vector
@@ -17,7 +17,7 @@ def mat(name,hex,emit=0,metal=0):
     bs.inputs['Roughness'].default_value=.72; bs.inputs['Metallic'].default_value=metal
     if emit: bs.inputs['Emission Color'].default_value=(*c,1); bs.inputs['Emission Strength'].default_value=emit
     M[name]=m
-for a in [('stone','426774'),('edge','69868A'),('dark','243D49'),('moss','417A70'),('gold','DDB574'),('bark','705D50'),('leaf','A7B18A'),('leaf2','C9BD87'),('coat','EDAC52'),('fur','B47945'),('cream','FFE4B2'),('ink','243748'),('scarf','63C9BA'),('boot','52505A'),('bag','547D78'),('glow','FFE4A0',2),('rune','8CDBD2',1.6)]:mat(*a)
+for a in [('stone','B7D1C0'),('edge','D9E4C9'),('dark','719B8C'),('moss','83B878'),('gold','F0C35A'),('bark','A77C55'),('leaf','85C986'),('leaf2','B9D987'),('coat','EDAC52'),('fur','B47945'),('cream','FFF7D9'),('ink','43362B'),('scarf','63C9BA'),('boot','52505A'),('bag','547D78'),('glow','FFF0B0',.6),('rune','87D5D5',.45),('star','FFD34E'),('star_edge','ECAF38'),('pink','ECA799'),('cloud','FFF9E8')]:mat(*a)
 objects=[]
 def finish(obj,name,m,parent=None):
     obj.name=name
@@ -31,7 +31,7 @@ def box(name,p,s,m,bevel=.05,parent=None):
     bpy.ops.mesh.primitive_cube_add(size=1,location=p);o=bpy.context.object;o.scale=s
     bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
     if bevel:
-        mod=o.modifiers.new('Soft carved edges','BEVEL');mod.width=bevel;mod.segments=2
+        mod=o.modifiers.new('Soft carved edges','BEVEL');mod.width=bevel;mod.segments=3
         bpy.context.view_layer.objects.active=o;bpy.ops.object.modifier_apply(modifier=mod.name)
         mod=o.modifiers.new('Weighted corner normals','WEIGHTED_NORMAL');bpy.ops.object.modifier_apply(modifier=mod.name)
     return finish(o,name,m,parent)
@@ -97,11 +97,11 @@ for variant in range(3):
     for z in range(3):
         # Stone courses with visible recessed joints, but a single collision block in game.
         for x in [-1,1]:
-            box('CarvedBlock',(x,0,.64+z*.58),(1.95,3.88,.55),'stone' if (z+variant)%2 else 'edge',.06,root)
-    box('Coping',(0,0,2.18),(4.03,4.03,.23),'edge',.08,root)
+            box('CarvedBlock',(x,0,.64+z*.58),(1.95,3.88,.55),'stone' if (z+variant)%2 else 'edge',.10,root)
+    box('Coping',(0,0,2.18),(4.03,4.03,.23),'edge',.10,root)
     for k in range(5):
         x=random.uniform(-1.7,1.7);y=random.uniform(-1.7,1.7)
-        sphere('Moss',(x,y,2.30),(random.uniform(.25,.65),random.uniform(.25,.6),.10),'moss',root,True)
+        sphere('Moss',(x,y,2.30),(random.uniform(.25,.65),random.uniform(.25,.6),.10),'moss',root)
     if variant==1:
         for side in [-1,1]:
             box('Inset',(0,side*1.955,1.24),(.68,.025,.78),'dark',.015,root)
@@ -153,8 +153,8 @@ for variant in range(2):
         a=i*2.4;z=2.5+i*.35
         o=cyl('Branch',(math.cos(a)*.45,math.sin(a)*.45,z),.12,1.5,'bark',6,root,r2=.025)
         o.rotation_euler=(math.sin(a)*.65,math.cos(a)*.65,0)
-        sphere('Canopy',(math.cos(a)*.8,math.sin(a)*.8,z+.65),(.95,.85,.72),'leaf' if variant==0 else 'leaf2',root,True)
-    sphere('Crown',(0,0,4.45),(1.0,.9,.9),'leaf2',root,True)
+        sphere('Canopy',(math.cos(a)*.8,math.sin(a)*.8,z+.65),(.95,.85,.72),'leaf' if variant==0 else 'leaf2',root)
+    sphere('Crown',(0,0,4.45),(1.0,.9,.9),'leaf2',root)
     export('tree_'+str(variant))
 
 root=empty('Grass')
@@ -162,10 +162,50 @@ for i in range(7):
     a=i*2.4;h=random.uniform(.2,.55);x=math.cos(a)*.14;y=math.sin(a)*.14
     mesh=bpy.data.meshes.new('Blade');mesh.from_pydata([(x-.04,y,0),(x+.04,y,0),(x+math.cos(a)*.16,y+math.sin(a)*.16,h)],[],[(0,1,2)])
     ob=bpy.data.objects.new('Blade',mesh);bpy.context.collection.objects.link(ob);finish(ob,'Blade','moss',root)
+for x,y,z in [(-.13,.08,.29),(.17,-.04,.23)]:
+    for i in range(5):
+        a=i*math.tau/5
+        sphere('Petal',(x+math.cos(a)*.055,y+math.sin(a)*.055,z),(.045,.045,.026),'pink' if x<0 else 'cream',root)
+    sphere('FlowerCenter',(x,y,z+.02),(.03,.03,.025),'gold',root)
 export('grass')
+
+# A real five-point silhouette, thick rounded edge and domed front/back.
+# The star stays readable while turning, unlike the old disc-and-ring pickup.
+root=empty('Star')
+verts=[];faces=[]
+for depth,scale in [(-.145,.75),(0,1.0),(.115,.75)]:
+    for i in range(10):
+        a=i*math.pi/5;r=(.38 if i%2==0 else .18)*scale
+        verts.append((math.sin(a)*r,depth,math.cos(a)*r))
+verts.extend([(0,-.19,0),(0,.15,0)])
+for i in range(10):
+    j=(i+1)%10
+    faces.extend([(30,j,i),(i,j,j+10,i+10),(i+10,j+10,j+20,i+20),(31,i+20,j+20)])
+data=bpy.data.meshes.new('PuffyFivePointStar');data.from_pydata(verts,[],faces);data.update()
+star=bpy.data.objects.new('PuffyFivePointStar',data);bpy.context.collection.objects.link(star);finish(star,'PuffyFivePointStar','star',root)
+for p in data.polygons:p.use_smooth=True
+bevel=star.modifiers.new('Soft candy edge','BEVEL');bevel.width=.018;bevel.segments=3
+# Curved highlight sits on the dome and is visible at small screen sizes.
+glint=sphere('StarHighlight',(-.086,-.177,.106),(.026,.012,.055),'cream',root);glint.rotation_euler.y=-.4
+export('star')
+
+root=empty('Hurdle')
+box('RoundedStoneRail',(0,0,.30),(3.96,.64,.60),'stone',.11,root)
+box('CreamCoping',(0,0,.61),(3.98,.68,.08),'cream',.035,root)
+for x in [-1.65,1.65]:
+    box('GoldEndStripe',(x,0,.33),(.13,.66,.59),'gold',.03,root)
+for side in [-1,1]:
+    box('JumpInset',(0,side*.326,.31),(.45,.018,.24),'dark',.04,root)
+    box('JumpArrow',(-.07,side*.341,.34),(.16,.024,.055),'cream',.015,root).rotation_euler.y=-.65
+    box('JumpArrow',(.07,side*.341,.34),(.16,.024,.055),'cream',.015,root).rotation_euler.y=.65
+export('hurdle')
+
+root=empty('Cloud')
+for p,s in [((-.9,0,0),(1.1,.6,.5)),((0,0,.3),(1.15,.7,.82)),((1,0,0),(1.05,.65,.52))]:sphere('CloudPuff',p,s,'cloud',root)
+export('cloud')
 
 # A single editable source file containing all separately named model hierarchies.
 for o in bpy.context.scene.objects:o.hide_set(False)
 for i,o in enumerate([ob for ob in bpy.context.scene.objects if ob.parent is None]):o.location=(i%4*8,i//4*8,0)
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'model-source/maze3d/pipi_ruins_library.blend'))
-print('MODELS: 11 original reusable glTF assets and Blender source exported')
+print('MODELS: 14 reusable courtyard glTF assets and Blender source exported')

@@ -43,6 +43,9 @@ jobs:
           timeout 240 xvfb-run -a -s '-screen 0 1280x720x24' "$GODOT" --fixed-fps 60 --audio-driver Dummy --path maze3d --script res://tests/capture.gd -- "$PWD/docs/maze3d/screenshots" > build/maze3d/reports/capture.txt 2>&1
           cat build/maze3d/reports/capture.txt
           if grep -nE 'SCRIPT ERROR|ERROR:' build/maze3d/reports/capture.txt; then exit 1; fi
+          timeout 120 xvfb-run -a -s '-screen 0 1280x720x24' "$GODOT" --fixed-fps 60 --audio-driver Dummy --path maze3d --script res://tests/art_capture.gd -- "$PWD/docs/maze3d/screenshots/10-character-motion.png" > build/maze3d/reports/art-capture.txt 2>&1
+          cat build/maze3d/reports/art-capture.txt
+          if grep -nE 'SCRIPT ERROR|ERROR:' build/maze3d/reports/art-capture.txt; then exit 1; fi
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           LP_NUM_THREADS: '4'
@@ -95,4 +98,4 @@ jobs:
           sha256sum -c SHA256SUMS.txt
           cp RELEASE_NOTES.md ../release-body.md
           printf '\n验证流水线：https://github.com/%s/actions/runs/%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> ../release-body.md
-          gh release create maze-3d-v0.3.0 ./* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title 'Pipi Maze · 灯火遗迹 0.3.0 · 跳跃挑战与角色查看' --notes-file ../release-body.md
+          gh release create maze-3d-v0.4.0 ./* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title 'Pipi Maze · 灯火遗迹 0.4.0 · 布朗焕新与星光庭院' --notes-file ../release-body.md

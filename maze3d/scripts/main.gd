@@ -31,7 +31,7 @@ func _ready() -> void:
 	Engine.max_fps=60
 	load_progress()
 	world=World.new();add_child(world)
-	world.picked.connect(func():show_toast("萤光 +1  ·  %d / 12"%world.collected.size(),1.4))
+	world.picked.connect(func():show_toast("星星 +1  ·  %d / 12"%world.collected.size(),1.4))
 	world.lit.connect(save_progress)
 	world.escaped.connect(finish)
 	world.message.connect(show_toast)
@@ -68,7 +68,7 @@ func start_game(resume: bool=false) -> void:
 	var data:Dictionary=session if resume else {}
 	if resume:chapter=clampi(int(data.get("chapter",chapter)),0,2)
 	world.build(chapter,data);world.title_mode=false;world.active=true;page="play"
-	reset_input();tutorial_time=18 if not resume else 5;show_toast("点亮三座灯塔 · 跳过障碍，收集高处萤光",4)
+	reset_input();tutorial_time=18 if not resume else 5;show_toast("点亮三座灯塔 · 跳过障碍，收集高处星星",4)
 	save_progress();loading=false;print("PIPI_PAGE play")
 
 func action(id: String) -> void:
@@ -93,6 +93,10 @@ func action(id: String) -> void:
 		"camera":world.reset_camera();show_toast("视角已回正",1)
 		"preview_reset":world.reset_preview()
 		"preview_auto":world.preview_auto=not world.preview_auto
+		"preview_expression":
+			var expressions=world.character.EXPRESSIONS
+			var next: int=(expressions.find(world.character.expression)+1)%expressions.size()
+			world.character.emote(expressions[next],4.0)
 		"preview_in":world.zoom_preview(.85)
 		"preview_out":world.zoom_preview(1.0/.85)
 		"sound":

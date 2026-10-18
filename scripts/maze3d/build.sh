@@ -25,7 +25,7 @@ done
 BT="$ANDROID_SDK_ROOT/build-tools/35.0.0"
 "$BT/zipalign" -P 16 -f 4 build/maze3d/unsigned.apk build/maze3d/aligned.apk
 base64 --decode signing/demo-signing.p12.base64 > build/maze3d/demo-signing.p12
-APK=build/maze3d/output/Pipi-Maze-Ruins-0.3.0.apk
+APK=build/maze3d/output/Pipi-Maze-Ruins-0.4.0.apk
 "$BT/apksigner" sign --ks build/maze3d/demo-signing.p12 --ks-pass pass:schulte-demo-public --ks-key-alias schulte-demo --out "$APK" build/maze3d/aligned.apk
 "$BT/apksigner" verify --verbose "$APK" > build/maze3d/apk-report.txt
 "$BT/zipalign" -c -P 16 -v 4 "$APK" >> build/maze3d/apk-report.txt
@@ -34,5 +34,5 @@ APK=build/maze3d/output/Pipi-Maze-Ruins-0.3.0.apk
 grep -q "package: name='com.alex.pipimaze.ruins'" build/maze3d/apk-report.txt
 if grep -nE 'android.permission.(INTERNET|RECORD_AUDIO|READ_EXTERNAL_STORAGE)' build/maze3d/apk-report.txt; then exit 1; fi
 chmod +x build/maze3d/output/Pipi-Maze-Ruins.x86_64
-(cd build/maze3d/output && sha256sum Pipi-Maze-Ruins-0.3.0.apk Pipi-Maze-Ruins.x86_64 > SHA256SUMS.txt)
+(cd build/maze3d/output && sha256sum Pipi-Maze-Ruins-0.4.0.apk Pipi-Maze-Ruins.x86_64 > SHA256SUMS.txt)
 cat build/maze3d/output/SHA256SUMS.txt

@@ -45,11 +45,14 @@ def run():
     adb('shell','settings','put','secure','immersive_mode_confirmations','confirmed')
     adb('shell','settings','put','system','accelerometer_rotation','0')
     adb('shell','input','keyevent','82')
-    apk=ROOT/'build/maze3d/output/Pipi-Maze-Ruins-0.3.0.apk'
+    apk=ROOT/'build/maze3d/output/Pipi-Maze-Ruins-0.4.0.apk'
     check(b'Success' in adb('install','--no-incremental','-r',str(apk),timeout=180),'install signed APK')
     adb('shell','pm','clear',PACKAGE);adb('logcat','-c');checkpoint()
     check(b'Status: ok' in adb('shell','am','start','-W','-n',PACKAGE+'/com.godot.game.GodotAppLauncher'),'release activity starts')
     page('home');shot('01-home')
+    tap(1130,425);shot('01a-expression')
+    adb('shell','input','swipe','800','290','1000','320','600');shot('01b-character-side')
+    tap(1130,480) # Restore front view after inspecting the new model.
     tap(207,513,'play');initial=shot('02-play')
     adb('shell','input','swipe','155','565','155','465','1800')
     moved=shot('03-moved')

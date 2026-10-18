@@ -29,6 +29,12 @@ func run() -> void:
 	print("CAPTURE: waiting initial frames")
 	await wait_frames(3)
 	await capture("01-home")
+	if OS.get_cmdline_user_args().has("--home-only"):
+		app.queue_free();await wait_frames(3);OS.delay_msec(150);quit();return
+	app.action("preview_expression")
+	check(app.world.character.expression=="Joy","homepage control changes the actual face geometry")
+	await capture("01d-home-joy")
+	app.world.character.emote("Smile",.01)
 	var yaw:float=app.world.preview_yaw
 	touch(1,Vector2(800,270),true);drag(1,Vector2(1010,305),Vector2(210,35));touch(1,Vector2(1010,305),false)
 	check(absf(angle_difference(yaw,app.world.preview_yaw))>1,"rendered home accepts a real touch rotation")
