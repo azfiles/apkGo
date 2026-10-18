@@ -28,6 +28,8 @@ def sync():
             item['cell'], item['axis'] = cell(item['cell']), cell(item['axis'])
         for item in data['scenery']:
             item['position'] = dict(zip(('x', 'y', 'z'), item['position']))
+        data.setdefault('regions', [])
+        data.setdefault('environment', dict(background='b9dfe0', fog='c7e2d7', water='69bfc9'))
         output = DEST / 'Levels' / path.name
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
@@ -51,6 +53,14 @@ def sync():
         # C# initializers. Materialize glTF's sentinel/default values explicitly.
         for node in metadata['nodes']:
             node.setdefault('mesh', -1)
+            node.setdefault('translation', [0, 0, 0])
+            node.setdefault('rotation', [0, 0, 0, 1])
+            node.setdefault('scale', [1, 1, 1])
+        for material in metadata['materials']:
+            pbr = material.setdefault('pbrMetallicRoughness', {})
+            pbr.setdefault('baseColorFactor', [1, 1, 1, 1])
+            pbr.setdefault('baseColorTexture', dict(index=-1))
+            material.setdefault('emissiveFactor', [0, 0, 0])
         for mesh in metadata['meshes']:
             for primitive in mesh['primitives']:
                 primitive.setdefault('mode', 4)

@@ -19,4 +19,19 @@ foreach(string id in Level.Ids)
     for(int i=0;i<level.motes.Length;i++)Check(level.Elevated(i)==level.elevated_motes.Contains(i),"elevated star lookup");
     Cell originalGoal=level.goal;level.goal=new Cell(0,0);bool invalid=false;try{level.Validate();}catch(InvalidOperationException){invalid=true;}Check(invalid,"reject objective inside a wall");level.goal=originalGoal;
 }
-Console.WriteLine($"PASS: {checks} Unity maze rules and current authored level checks; four chapters.");
+foreach(string path in Directory.GetFiles(Path.Combine(assets,"../Editor/ModelMetadata"),"*.json"))
+{
+    using var parsed=JsonDocument.Parse(File.ReadAllText(path));var model=parsed.RootElement;
+    foreach(var node in model.GetProperty("nodes").EnumerateArray())
+    {
+        Check(node.TryGetProperty("mesh",out _),"explicit absent-mesh sentinel");
+        Check(node.GetProperty("translation").GetArrayLength()==3&&node.GetProperty("rotation").GetArrayLength()==4&&node.GetProperty("scale").GetArrayLength()==3,"explicit transform defaults");
+    }
+    foreach(var material in model.GetProperty("materials").EnumerateArray())
+    {
+        var pbr=material.GetProperty("pbrMetallicRoughness");Check(pbr.GetProperty("baseColorFactor").GetArrayLength()==4,"explicit linear material color");
+        int texture=pbr.GetProperty("baseColorTexture").GetProperty("index").GetInt32();Check(texture>=-1&&(texture==-1||texture<model.GetProperty("textures").GetArrayLength()),"explicit absent-texture sentinel");
+        Check(material.GetProperty("emissiveFactor").GetArrayLength()==3,"explicit emissive default");
+    }
+}
+Console.WriteLine($"PASS: {checks} Unity maze rules, authored level and model-import contract checks; four chapters.");

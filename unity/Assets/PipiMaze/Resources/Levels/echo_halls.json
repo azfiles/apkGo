@@ -165,5 +165,11 @@
   "subtitle": "转角之后，灯火仍在",
   "tile_size": 4.0,
   "title": "回声回廊",
-  "version": 1
+  "version": 1,
+  "regions": [],
+  "environment": {
+    "background": "b9dfe0",
+    "fog": "c7e2d7",
+    "water": "69bfc9"
+  }
 }

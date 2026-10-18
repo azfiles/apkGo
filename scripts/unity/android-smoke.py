@@ -46,9 +46,11 @@ def shot(name):
 
 try:
     adb('install', '-r', 'build/unity-release/Pipi-Maze-Unity-0.1.0.apk')
-    adb('shell', 'wm', 'size', '1280x720')
-    adb('shell', 'wm', 'density', '160')
+    adb('shell', 'wm', 'size', '720x1280')
+    adb('shell', 'wm', 'density', '240')
+    adb('shell', 'settings', 'put', 'secure', 'immersive_mode_confirmations', 'confirmed')
     adb('shell', 'settings', 'put', 'system', 'accelerometer_rotation', '0')
+    adb('shell', 'input', 'keyevent', '82')
     adb('logcat', '-c')
     adb('shell', 'monkey', '-p', APP, '-c', 'android.intent.category.LAUNCHER', '1')
     expect('PIPI_EVENT: HOME', 90)

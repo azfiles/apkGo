@@ -28,7 +28,8 @@ namespace PipiMaze.Editor
             PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.Android,ApiCompatibilityLevel.NET_Standard);
             var objects=AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset");if(objects.Length>0){var settings=new SerializedObject(objects[0]);var input=settings.FindProperty("activeInputHandler");if(input!=null){input.intValue=0;settings.ApplyModifiedPropertiesWithoutUndo();}}
             EditorSettings.serializationMode=SerializationMode.ForceText;
-            if(!File.Exists(ScenePath)){var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);new GameObject("Pipi Maze Unity").AddComponent<MazeApp>();EditorSceneManager.SaveScene(scene,ScenePath);}
+            Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
+            if(!File.Exists(ScenePath)){var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);new GameObject("Pipi Maze Unity").AddComponent<MazeApp>();if(!EditorSceneManager.SaveScene(scene,ScenePath))throw new BuildFailedException("Cannot save the Unity entry scene");}
             EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene(ScenePath,true)};AssetDatabase.SaveAssets();
         }
         public static void VerifyAssets()

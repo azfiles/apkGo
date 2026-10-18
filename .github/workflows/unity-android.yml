@@ -47,7 +47,14 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      - name: Restore an identical verified APK
+        id: apk-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: build/unity-release
+          key: pipi-unity-apk-v1-${{ runner.os }}-${{ hashFiles('unity/**', 'scripts/unity/package.sh', 'signing/demo-signing.p12.base64') }}
       - name: Reserve disk for the Unity Android image
+        if: steps.apk-cache.outputs.cache-hit != 'true'
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/swift
           sudo mkdir -p /usr/local/lib/android/sdk
@@ -56,6 +63,7 @@ jobs:
         id: version
         run: echo "code=$((100000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_OUTPUT"
       - name: Build current Pipi Maze in Unity
+        if: steps.apk-cache.outputs.cache-hit != 'true'
         uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00 # v4
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -75,13 +83,16 @@ jobs:
           androidTargetSdkVersion: 35
           chownFilesTo: 1001:1001
       - uses: actions/setup-java@v4
+        if: steps.apk-cache.outputs.cache-hit != 'true'
         with:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        if: steps.apk-cache.outputs.cache-hit != 'true'
         with:
           packages: 'build-tools;35.0.0'
       - name: Sign and verify independent preview package
+        if: steps.apk-cache.outputs.cache-hit != 'true'
         run: |
           mapfile -t apks < <(find build/unity -name '*.apk' -type f)
           test "${#apks[@]}" -eq 1
@@ -90,6 +101,12 @@ jobs:
         with:
           name: unity-rules
           path: build/unity-release
+      - name: Cache the signed package for smoke-test-only changes
+        if: steps.apk-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: build/unity-release
+          key: ${{ steps.apk-cache.outputs.cache-primary-key }}
       - uses: actions/upload-artifact@v4
         with:
           name: unity-preview-apk

@@ -194,5 +194,11 @@
   "subtitle": "让沉睡的遗迹再次亮起",
   "tile_size": 4.0,
   "title": "星眠深境",
-  "version": 1
+  "version": 1,
+  "regions": [],
+  "environment": {
+    "background": "b9dfe0",
+    "fog": "c7e2d7",
+    "water": "69bfc9"
+  }
 }

@@ -48,9 +48,10 @@ namespace PipiMaze.Editor
             for(int i=0;i<materials.Length;i++)
             {
                 Mat source=doc.materials[i];var mat=new Material(shader){name=source.name,enableInstancing=true};var p=source.pbrMetallicRoughness;
-                float[] c=p?.baseColorFactor;mat.color=c!=null ? new Color(c[0],c[1],c[2],c[3]).gamma : Color.white;
-                if(p?.baseColorTexture!=null)mat.mainTexture=textures[doc.textures[p.baseColorTexture.index].source];
-                if(source.emissiveFactor!=null)mat.SetColor("_Emission",new Color(source.emissiveFactor[0],source.emissiveFactor[1],source.emissiveFactor[2]));
+                float[] c=p?.baseColorFactor;mat.color=c!=null&&c.Length==4 ? new Color(c[0],c[1],c[2],c[3]).gamma : Color.white;
+                int textureIndex=p?.baseColorTexture?.index??-1;
+                if(textureIndex>=0){if(doc.textures==null||textureIndex>=doc.textures.Length)throw new InvalidDataException("Invalid material texture index");mat.mainTexture=textures[doc.textures[textureIndex].source];}
+                if(source.emissiveFactor!=null&&source.emissiveFactor.Length>=3)mat.SetColor("_Emission",new Color(source.emissiveFactor[0],source.emissiveFactor[1],source.emissiveFactor[2]));
                 ctx.AddObjectToAsset("material"+i,mat);materials[i]=mat;
             }
             var meshes=new Mesh[doc.meshes.Length][];
@@ -72,10 +73,10 @@ namespace PipiMaze.Editor
             var nodes=new GameObject[doc.nodes.Length];
             for(int i=0;i<nodes.Length;i++)
             {
-                var n=doc.nodes[i];if(n.matrix!=null)throw new InvalidDataException("Matrix nodes require explicit conversion");var go=new GameObject(n.name??"Node"+i);nodes[i]=go;
-                if(n.translation!=null)go.transform.localPosition=new Vector3(n.translation[0],n.translation[1],-n.translation[2]);
-                if(n.rotation!=null)go.transform.localRotation=new Quaternion(-n.rotation[0],-n.rotation[1],n.rotation[2],n.rotation[3]);
-                if(n.scale!=null)go.transform.localScale=new Vector3(n.scale[0],n.scale[1],n.scale[2]);
+                var n=doc.nodes[i];if(n.matrix!=null&&n.matrix.Length>0)throw new InvalidDataException("Matrix nodes require explicit conversion");var go=new GameObject(n.name??"Node"+i);nodes[i]=go;
+                if(n.translation!=null&&n.translation.Length==3)go.transform.localPosition=new Vector3(n.translation[0],n.translation[1],-n.translation[2]);
+                if(n.rotation!=null&&n.rotation.Length==4)go.transform.localRotation=new Quaternion(-n.rotation[0],-n.rotation[1],n.rotation[2],n.rotation[3]);
+                if(n.scale!=null&&n.scale.Length==3)go.transform.localScale=new Vector3(n.scale[0],n.scale[1],n.scale[2]);
                 if(n.mesh>=0)for(int j=0;j<meshes[n.mesh].Length;j++)
                 {
                     var part=new GameObject("Primitive"+j);part.transform.SetParent(go.transform,false);part.AddComponent<MeshFilter>().sharedMesh=meshes[n.mesh][j];var renderer=part.AddComponent<MeshRenderer>();
