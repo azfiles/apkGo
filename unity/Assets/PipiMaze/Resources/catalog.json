@@ -1,0 +1,336 @@
+{
+  "assets": [
+    {
+      "name": "wall_0",
+      "colliders": [
+        {
+          "size": {
+            "x": 4,
+            "y": 2.35,
+            "z": 4
+          },
+          "position": {
+            "x": 0,
+            "y": 1.15,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "wall_1",
+      "colliders": [
+        {
+          "size": {
+            "x": 4,
+            "y": 2.35,
+            "z": 4
+          },
+          "position": {
+            "x": 0,
+            "y": 1.15,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "wall_2",
+      "colliders": [
+        {
+          "size": {
+            "x": 4,
+            "y": 2.35,
+            "z": 4
+          },
+          "position": {
+            "x": 0,
+            "y": 1.15,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "tree_0",
+      "colliders": []
+    },
+    {
+      "name": "tree_1",
+      "colliders": []
+    },
+    {
+      "name": "star",
+      "colliders": []
+    },
+    {
+      "name": "portal",
+      "colliders": []
+    },
+    {
+      "name": "pipi_explorer",
+      "colliders": []
+    },
+    {
+      "name": "lantern",
+      "colliders": []
+    },
+    {
+      "name": "hurdle",
+      "colliders": []
+    },
+    {
+      "name": "grass",
+      "colliders": []
+    },
+    {
+      "name": "crystal",
+      "colliders": []
+    },
+    {
+      "name": "cloud",
+      "colliders": []
+    },
+    {
+      "name": "brown",
+      "colliders": []
+    },
+    {
+      "name": "beacon",
+      "colliders": [
+        {
+          "size": {
+            "x": 0.95,
+            "y": 1.1,
+            "z": 0.95
+          },
+          "position": {
+            "x": 0,
+            "y": 0.55,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "courtyard_tile",
+      "colliders": [
+        {
+          "size": {
+            "x": 4,
+            "y": 0.6,
+            "z": 4
+          },
+          "position": {
+            "x": 0,
+            "y": -0.32,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "garden_bridge",
+      "colliders": [
+        {
+          "size": {
+            "x": 4,
+            "y": 0.6,
+            "z": 4
+          },
+          "position": {
+            "x": 0,
+            "y": -0.32,
+            "z": 0
+          }
+        },
+        {
+          "size": {
+            "x": 0.18,
+            "y": 0.7,
+            "z": 4
+          },
+          "position": {
+            "x": -1.88,
+            "y": 0.35,
+            "z": 0
+          }
+        },
+        {
+          "size": {
+            "x": 0.18,
+            "y": 0.7,
+            "z": 4
+          },
+          "position": {
+            "x": 1.88,
+            "y": 0.35,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "ruins_arch",
+      "colliders": [
+        {
+          "size": {
+            "x": 0.52,
+            "y": 3.3,
+            "z": 0.7
+          },
+          "position": {
+            "x": -1.7,
+            "y": 1.65,
+            "z": 0
+          }
+        },
+        {
+          "size": {
+            "x": 0.52,
+            "y": 3.3,
+            "z": 0.7
+          },
+          "position": {
+            "x": 1.7,
+            "y": 1.65,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "ruins_column",
+      "colliders": [
+        {
+          "size": {
+            "x": 0.9,
+            "y": 3.8,
+            "z": 0.9
+          },
+          "position": {
+            "x": 0,
+            "y": 1.9,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "garden_fountain",
+      "colliders": [
+        {
+          "size": {
+            "x": 2.7,
+            "y": 1.1,
+            "z": 2.7
+          },
+          "position": {
+            "x": 0,
+            "y": 0.55,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "garden_pavilion",
+      "colliders": [
+        {
+          "size": {
+            "x": 0.4,
+            "y": 3.8,
+            "z": 0.4
+          },
+          "position": {
+            "x": -2.4,
+            "y": 1.9,
+            "z": -2.4
+          }
+        },
+        {
+          "size": {
+            "x": 0.4,
+            "y": 3.8,
+            "z": 0.4
+          },
+          "position": {
+            "x": -2.4,
+            "y": 1.9,
+            "z": 2.4
+          }
+        },
+        {
+          "size": {
+            "x": 0.4,
+            "y": 3.8,
+            "z": 0.4
+          },
+          "position": {
+            "x": 2.4,
+            "y": 1.9,
+            "z": -2.4
+          }
+        },
+        {
+          "size": {
+            "x": 0.4,
+            "y": 3.8,
+            "z": 0.4
+          },
+          "position": {
+            "x": 2.4,
+            "y": 1.9,
+            "z": 2.4
+          }
+        }
+      ]
+    },
+    {
+      "name": "flower_planter",
+      "colliders": [
+        {
+          "size": {
+            "x": 1.7,
+            "y": 0.6,
+            "z": 0.8
+          },
+          "position": {
+            "x": 0,
+            "y": 0.3,
+            "z": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "aqueduct",
+      "colliders": [
+        {
+          "size": {
+            "x": 0.7,
+            "y": 4.5,
+            "z": 1
+          },
+          "position": {
+            "x": -3.5,
+            "y": 2.25,
+            "z": 0
+          }
+        },
+        {
+          "size": {
+            "x": 0.7,
+            "y": 4.5,
+            "z": 1
+          },
+          "position": {
+            "x": 3.5,
+            "y": 2.25,
+            "z": 0
+          }
+        }
+      ]
+    }
+  ]
+}

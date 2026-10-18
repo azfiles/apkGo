@@ -1,0 +1,173 @@
+name: Pipi Maze Unity preview
+on:
+  push:
+    branches: ['codex/unity-*', 'release/unity-*']
+    paths: ['unity/**', 'scripts/unity/**', 'tests/unity/**', '.github/workflows/unity-android.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: unity-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Verify current authored data and core rules
+        run: |
+          set -o pipefail
+          python3 scripts/unity/sync-assets.py
+          git diff --exit-code -- unity/Assets/PipiMaze/Resources
+          mkdir -p work/unity-build
+          dotnet run --project tests/unity/Core.csproj | tee work/unity-build/model-report.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unity-rules
+          path: work/unity-build/model-report.txt
+  license:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check activation inputs without exposing credentials
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: python3 scripts/unity/check-license.py
+  build:
+    needs: [rules, license]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reserve disk for the Unity Android image
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/swift
+          sudo mkdir -p /usr/local/lib/android/sdk
+          sudo chown -R "$USER:$USER" /usr/local/lib/android
+      - name: Set preview version code
+        id: version
+        run: echo "code=$((100000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_OUTPUT"
+      - name: Build current Pipi Maze in Unity
+        uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00 # v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: unity
+          unityVersion: 6000.0.60f1
+          targetPlatform: Android
+          buildMethod: PipiMaze.Editor.UnityBuild.Android
+          buildsPath: build/unity
+          buildName: Pipi-Maze-Unity-0.1.0
+          versioning: Custom
+          version: 0.1.0
+          androidVersionCode: ${{ steps.version.outputs.code }}
+          androidTargetSdkVersion: 35
+          chownFilesTo: 1001:1001
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'build-tools;35.0.0'
+      - name: Sign and verify independent preview package
+        run: |
+          mapfile -t apks < <(find build/unity -name '*.apk' -type f)
+          test "${#apks[@]}" -eq 1
+          bash scripts/unity/package.sh "${apks[0]}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: unity-rules
+          path: build/unity-release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unity-preview-apk
+          path: build/unity-release/*
+          if-no-files-found: error
+      - name: Preserve available editor import logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-editor-logs
+          path: unity/Logs/**
+          if-no-files-found: ignore
+  smoke:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: unity-preview-apk
+          path: build/unity-release
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - run: python3 -m pip install Pillow
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: python3 scripts/unity/android-smoke.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unity-android-smoke
+          path: build/unity-smoke/**
+          if-no-files-found: warn
+  publish:
+    needs: [build, smoke]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: unity-preview-apk
+          path: release
+      - uses: actions/download-artifact@v4
+        with:
+          name: unity-android-smoke
+          path: release/smoke
+      - name: Publish Unity trial APK and verification evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cp release/smoke/report.json release/android-smoke-report.json
+          zip -j release/unity-android-screenshots.zip release/smoke/*.png
+          cat > release/README.txt <<EOF
+          Pipi Maze · 灯火遗迹 · Unity 试玩版 0.1.0
+
+          基于当前 Godot 0.5.0 的四章关卡、布朗模型、场景素材与音效，使用 Unity 6 重写客户端。
+          支持触屏移动、转镜头、跳跃、冲刺、灯塔互动、星星收集、引路灯、地图、暂停与独立存档。
+          已验证：C# 路径/跳跃规则、实际 Unity Android 构建、ARM64/x86_64 包结构、签名与对齐；Android 模拟器启动、画面、移动、跳跃、地图、暂停恢复、四章场景和重启。
+          尚未验证：ARM64 真机帧率与手感、四章完整通关、多点触控冲刺跳跃组合。
+          独立包名 com.alex.pipimaze.unitypreview；使用公开演示签名，存档独立。
+          Commit: ${GITHUB_SHA}
+          EOF
+          tag="pipi-unity-preview-r${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" release/*.apk release/*.txt release/*.json release/*.zip --target "$GITHUB_SHA" --prerelease --title "灯火遗迹 Unity 试玩 0.1.0 · r${GITHUB_RUN_NUMBER}" --notes-file release/README.txt
