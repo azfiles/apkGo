@@ -15,6 +15,29 @@ def logs():return adb('logcat','-d','-s','godot:V','AndroidRuntime:E','*:S').dec
 def checkpoint():
     global offset
     offset=len(re.findall(r'PIPI_PAGE (\w+)',logs()))
+def process_id():
+    try:return adb('shell','pidof',PACKAGE).strip()
+    except subprocess.CalledProcessError:return b''
+def launch(label,cold=False):
+    previous=process_id()
+    if cold:
+        adb('shell','am','force-stop',PACKAGE)
+        until=time.monotonic()+15
+        while process_id() and time.monotonic()<until:time.sleep(.25)
+        check(not process_id(),'previous Android process fully stopped')
+    checkpoint()
+    # Use the same explicit MAIN/LAUNCHER intent and task flags as the launcher.
+    # Capture am's result: a successful adb command alone does not mean Android
+    # actually accepted an activity launch after a background/force-stop cycle.
+    result=adb('shell','am','start','-W','-a','android.intent.action.MAIN',
+               '-c','android.intent.category.LAUNCHER','-f','0x10200000',
+               '-n',PACKAGE+'/com.godot.game.GodotAppLauncher').decode(errors='replace')
+    with (OUT/'launches.txt').open('a') as report:report.write(label+'\n'+result+'\n')
+    print(result,flush=True)
+    check('Status: ok' in result and 'Error:' not in result,label)
+    page('home')
+    current=process_id()
+    check(bool(current) and (not cold or current!=previous),'fresh Android process' if cold else 'Android process started')
 def page(expected,timeout=120):
     global offset
     until=time.monotonic()+timeout
@@ -48,8 +71,7 @@ def run():
     apk=ROOT/'build/maze3d/output/Pipi-Maze-Ruins-0.4.0.apk'
     check(b'Success' in adb('install','--no-incremental','-r',str(apk),timeout=180),'install signed APK')
     adb('shell','pm','clear',PACKAGE);adb('logcat','-c');checkpoint()
-    check(b'Status: ok' in adb('shell','am','start','-W','-n',PACKAGE+'/com.godot.game.GodotAppLauncher'),'release activity starts')
-    page('home');shot('01-home')
+    launch('release activity starts');shot('01-home')
     tap(1130,425);shot('01a-expression')
     adb('shell','input','swipe','800','290','1000','320','600');shot('01b-character-side')
     tap(1130,480) # Restore front view after inspecting the new model.
@@ -68,8 +90,7 @@ def run():
     checkpoint();adb('shell','input','keyevent','4');page('pause')
     tap(625,263,'play')
     checkpoint();adb('shell','input','keyevent','3');page('pause')
-    adb('shell','am','force-stop',PACKAGE)
-    checkpoint();adb('shell','am','start','-W','-n',PACKAGE+'/com.godot.game.GodotAppLauncher');page('home')
+    launch('release cold restart after background',cold=True)
     tap(207,513,'play');shot('07-restored')
     check(bool(adb('shell','pidof',PACKAGE).strip()),'release process remains alive')
     captured=logs()
@@ -78,3 +99,6 @@ def run():
 try:run()
 finally:
     (OUT/'logcat.txt').write_text(logs())
+    (OUT/'system-logcat.txt').write_bytes(adb('logcat','-d','-v','threadtime'))
+    (OUT/'activities.txt').write_bytes(adb('shell','dumpsys','activity','activities'))
+    (OUT/'last-frame.png').write_bytes(adb('exec-out','screencap','-p'))
