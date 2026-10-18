@@ -92,4 +92,4 @@ func run() -> void:
 	check(w.rescues==rescues+1,"canal is a real opening and recovers safely")
 	app.action("home");app.chapter=0;app.start_game(false)
 	print("DATA: ",checks," checks, 0 failures")
-	app.queue_free();await frames(3);quit()
+	app.queue_free();await frames(3);OS.delay_msec(150);quit()
