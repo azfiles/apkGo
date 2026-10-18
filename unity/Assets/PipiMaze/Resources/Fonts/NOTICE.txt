@@ -1,0 +1,2 @@
+PipiSans is a renamed subset of Noto Sans SC. Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name Source. Licensed under SIL OFL 1.1; see OFL.txt.
+Source: https://github.com/notofonts/noto-cjk

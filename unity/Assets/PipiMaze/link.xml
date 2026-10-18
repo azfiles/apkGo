@@ -1,0 +1,9 @@
+<linker>
+  <!-- CreatePrimitive adds these native components without a managed generic
+       reference. Preserve their registrations in IL2CPP release builds. -->
+  <assembly fullname="UnityEngine.PhysicsModule">
+    <type fullname="UnityEngine.SphereCollider" preserve="all" />
+    <type fullname="UnityEngine.CapsuleCollider" preserve="all" />
+    <type fullname="UnityEngine.BoxCollider" preserve="all" />
+  </assembly>
+</linker>
