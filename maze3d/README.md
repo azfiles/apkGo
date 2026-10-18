@@ -39,7 +39,7 @@ Godot 4.6.3 导入本目录的 `project.godot` 即可运行。仓库根目录：
 bash scripts/maze3d/test.sh
 export JAVA_HOME=/path/to/jdk-17
 export ANDROID_SDK_ROOT=/path/to/android-sdk
-# 安装匹配的 Godot 4.6.3 导出模板；也可以使用 scripts/maze/setup.sh
+# 安装匹配的 Godot 4.6.3 导出模板；也可以使用 scripts/maze3d/setup.sh
 bash scripts/maze3d/build.sh
 python3 scripts/maze3d/package.py
 ```

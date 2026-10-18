@@ -1,0 +1,23 @@
+name: Pipi Maze 3D · rules and scene checks
+on:
+  push:
+    branches: [main]
+    paths: ['maze3d/**', 'scripts/maze3d/**', 'model-source/maze3d/**', '.github/workflows/verify.yml']
+  pull_request:
+    paths: ['maze3d/**', 'scripts/maze3d/**', 'model-source/maze3d/**', '.github/workflows/verify.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pipi-3d-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  scene:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install checksum-pinned Godot without export templates
+        run: GODOT_ENGINE_ONLY=1 bash scripts/maze3d/setup.sh
+      - name: Test rules, real scenes, jumping and character animation
+        run: bash scripts/maze3d/test.sh

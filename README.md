@@ -1,82 +1,47 @@
 # Pipi Maze · 灯火遗迹 / 第三人称 3D
 
-当前开发版 **0.3.0：跳跃挑战与首页角色查看**。基于布朗 0.2.1 版本加入键盘 / 触屏跳跃、矮石栏、断桥、高处萤光和安全复位；首页支持 360° 环绕、俯仰、缩放及回正。构建方式见 [游戏说明](maze3d/README.md)。
+`apkGo` 现在集中开发 Godot 第三人称 3D 游戏。主分支包含原 `codex/pipi-3d-preview` 的 0.4.0 源码及后续首页表情、触摸旋转和 Android 冷启动验证修复。
 
-[上一版 0.2.1 Android APK](https://github.com/azfiles/apkGo/releases/download/maze-3d-v0.2.1/Pipi-Maze-Ruins-0.2.1.apk) · [完整发布与模型源文件](https://github.com/azfiles/apkGo/releases/tag/maze-3d-v0.2.1) · [游戏说明](maze3d/README.md) · [布朗参考与模型说明](docs/maze3d/BROWN.md)
+[下载 0.4.0 APK](https://github.com/azfiles/apkGo/releases/download/maze-3d-v0.4.0/Pipi-Maze-Ruins-0.4.0.apk) · [已发布版本与模型源文件](https://github.com/azfiles/apkGo/releases/tag/maze-3d-v0.4.0) · [操作与构建](maze3d/README.md) · [验证范围](docs/maze3d/VERIFICATION.md)
 
-![布朗 3D 模型实际渲染](docs/maze3d/brown/02-three-quarter.png)
+![灯火遗迹实际游戏画面](docs/maze3d/screenshots/02-play.png)
 
-## 早期版本：花园捉迷藏 / Godot 2.5D
+带着布朗在三章迷宫中探索、跳跃、收集星星、点亮灯塔。支持触屏摇杆、环顾镜头、冲刺、断桥安全复位、首页 360° 角色查看、动态表情和自动存档。
 
-新增独立的 Godot 迷宫游戏首版 `0.1.0`。复用 `azfiles/pipi-maze` 的布朗、屁屁侦探和小考拉原图，以正交三维花园与纸片角色呈现 2.5D 探索。包含晨光花园、池畔回廊、暮色林地三个可完整通关的关卡，支持点击寻路、方向盘 / 键盘、可选自然印记、提示、暂停和本机保存。
+## 开发入口
 
-[工程与操作说明](maze-godot/README.md) · [设计文档](docs/maze/DESIGN.md) · [素材来源](maze-godot/ASSET_SOURCES.md)。打开 `maze-godot/project.godot` 即可运行；`bash scripts/maze/test.sh` 验证规则与场景，`bash scripts/maze/build.sh` 输出独立包名的 Android APK 和 Linux 可执行文件。
-
-[下载迷宫试玩版 APK](https://github.com/azfiles/apkGo/releases/download/maze-v0.1.0/Pipi-Maze-Garden-0.1.0.apk) · [完整 Release 与 Godot 工程](https://github.com/azfiles/apkGo/releases/tag/maze-v0.1.0) · [迷宫构建与发布](https://github.com/azfiles/apkGo/actions/workflows/maze-godot.yml)
-
-![Pipi Maze 花园捉迷藏](docs/maze/screenshots/01-home.png)
-
-## 循光 · 流动数字 / Godot 2.0
-
-Godot 版将舒尔特表变成会漂流、碰撞、反弹的数字球：从 1 开始依次点亮数字，穿过 9 个逐步解锁的关卡。点击冲量、碰撞火花、点亮与通关粒子，配合轻柔音阶；支持星级、最佳纪录、暂停、后台停表和本机进度恢复。
-
-[下载 Godot 2.0 APK](https://github.com/azfiles/apkGo/releases/download/godot-v2.0.0-4-bdc250e/Schulte-Flow-Godot-2.0.0.apk) · [Godot 编译、验证与发布](https://github.com/azfiles/apkGo/actions/workflows/godot-android.yml) · [开发与验证说明](docs/godot-development.md)
-
-打开 `godot/project.godot`，使用 Godot 4.6.3。运行 `bash scripts/godot/test.sh` 可验证状态机、真实触摸输入、刚体碰撞、粒子、暂停和 9 关通关。Actions 会额外签名、检查 APK，并在 Android 10 模拟器上安装操作实际发布包，全部通过后才创建独立 Release。
-
-Android 7.0+、OpenGL ES 3.0；ARM64 / ARMv7 / x86_64。独立包名 `com.alex.schulteflow.godot`，与旧版并存，旧版成绩不迁移。离线运行，仅振动权限。沿用公开演示签名，供体验安装。
-
-已发布：[Godot 2.0 体验版](https://github.com/azfiles/apkGo/releases/tag/godot-v2.0.0-4-bdc250e)。368 项逻辑、53 项场景、22 项 Android 安装/操作/画面检查通过；下载成品的 SHA256 与签名已复核。[完整验证记录](docs/godot-verification.md)。
-
-<img src="docs/screenshots/godot-home.png" width="260" alt="Godot 版 Android 首页"> <img src="docs/screenshots/godot-play.png" width="260" alt="Godot 版 Android 物理数字球关卡">
-
-## 原生 Java 1.0（保留）
-
-以下为旧版说明。Java 构建工作流现已改为仅手动运行，后续自动编译与发布使用上方的 Godot 工作流。
-
-一款专注点按反馈的轻量原生 Android 应用。深色界面，青柠色目标，柔和递进音效与弹性动效。无需网络或账号，数据只保存在本机。
-
-[下载 APK（v1.0.0 Release）](https://github.com/azfiles/apkGo/releases/tag/v1.0.0) · [构建与测试](https://github.com/azfiles/apkGo/actions/workflows/android.yml)
-
-v1.0.0 已发布：92 项逻辑检查、169 项 Android 10 模拟器 UI 检查及签名/对齐验证全部通过。[查看验证记录](./docs/verification.md)。`dist/` 提供与 Release 完全一致的备用安装包。
-
-<img src="docs/screenshots/home.png" width="260" alt="首页"> <img src="docs/screenshots/result.png" width="260" alt="通关统计">
-
-## 玩法与功能
-从 1 开始按顺序点亮数字。提供 3×3、4×4、5×5 三档；点错会提示，不额外加时。连续点对有连击、音阶、回弹和粒子反馈。音效与触感可分别关闭，触感遵循系统设置。
-
-暂停遮住棋盘，后台自动停表，重新打开恢复未完成进度。完成后显示用时、准确率、误触数和平均每格时间；各难度独立保存最佳纪录。
-
-## 安装
-Android 8.0（API 26）及以上。下载 Release 中的 `Schulte-Flow-1.0.0.apk` 到手机并打开，按系统提示允许安装即可。APK 不请求网络、存储等权限，不包含广告、统计或第三方运行时依赖。卸载会清除本机成绩。
-
-## 构建
-Linux、JDK 17、Python 3 和 Android SDK。安装 `platforms;android-35`、`build-tools;35.0.0`，设置 `ANDROID_SDK_ROOT` 后运行：
+Godot **4.6.3** 导入 `maze3d/project.godot` 即可运行。Linux：
 
 ```bash
-bash build.sh
+bash scripts/maze3d/setup.sh
+export GODOT="$PWD/build/godot-tools/bin/godot"
+export XDG_DATA_HOME="$PWD/build/godot-tools/data"
+bash scripts/maze3d/test.sh
+# 需要 JDK 17、Android SDK 35 和 build-tools 35.0.0
+bash scripts/maze3d/build.sh
+python3 scripts/maze3d/package.py
 ```
 
-输出为 `build/output/Schulte-Flow-1.0.0.apk`，同时输出 SHA256 校验文件。构建直接使用 Android 官方 AAPT2、D8、zipalign 和 apksigner，无 Gradle 下载依赖。WAV 音效由 Python 程序生成。
+普通提交与 PR 执行不含 Android 模拟器的 Godot 规则/场景检查。完整签名 APK、Android 冒烟、截图和 Release 通过 **Pipi Maze 3D · verified preview** 手动触发。已发布包保持不可变，后续同版本验证构建使用新标签；每次修改不自动重复发布。
 
-## 验证与发布
-源码提交会运行 GitHub Actions：状态机测试 → 编译 APK → 签名和对齐验证 → Android 10 模拟器安装与 UI 冒烟 → 发布体验版。也可在 Actions 页面手动运行。失败不发布 Release；日志与截图保存为 Actions artifacts。
+Android 包名与公开演示签名沿用现有版本，存档继续保存在本机。0.4.0 下载仍为原始已发布文件；主分支包含的后续修复需要另行构建发布。
 
-UI 测试包含三种尺寸完整通关、真实触摸正确/错误数字、暂停停表、取消重开、Activity 重建恢复、设置与最佳成绩持久化。模拟器测试无法代替实体设备的触感和声音体验。
+## 项目结构
 
-```bash
-mkdir -p build/model
-javac -d build/model app/src/main/java/com/alex/schulteflow/GameSession.java tests/GameSessionTest.java
-java -cp build/model GameSessionTest
-bash tests/build-smoke.sh
-bash tests/run-smoke.sh  # 需要已启动且专用于测试的模拟器，会清空本应用成绩
-```
+| 目录 | 用途 |
+| --- | --- |
+| `maze3d/` | Godot 游戏源码、场景、素材与测试 |
+| `scripts/maze3d/` | 引擎安装、模型生成、验证、构建和打包 |
+| `model-source/maze3d/` | Blender 源文件与参考 |
+| `docs/maze3d/` | 设计、素材来源、实际截图和验证记录 |
+| `signing/` | 原有公开演示签名 |
 
-## 演示签名
-`signing/demo-signing.p12.base64` 是特意公开的演示密钥，密码为 `schulte-demo-public`，别名 `schulte-demo`。固定密钥便于体验版后续覆盖安装。**正式分发请替换为你自行保管的私有签名证书**，不要将生产密钥提交到仓库。
+## 已拆分的项目
 
-## 结构
-- `app/src/main/`：原生 Java UI、可独立测试的游戏状态机、资源
-- `scripts/generate_sounds.py`：生成音效
-- `tests/`：状态机和设备冒烟测试
-- `.github/workflows/android.yml`：构建、测试与 Release 发布
+| 项目 | 独立仓库 | 状态 |
+| --- | --- | --- |
+| 循光 · 舒尔特表 | [schulte-flow](https://github.com/azfiles/schulte-flow) | 原生与 Godot 版、MIT 开源、独立 APK Release |
+| 花园捉迷藏 2.5D | [pipi-maze-garden](https://github.com/azfiles/pipi-maze-garden) | 独立保留源码、素材、构建和历史下载入口 |
+| 舒尔特 Unity 原型 | [schulte-flow-unity](https://github.com/azfiles/schulte-flow-unity) | 独立保存，完整构建需 Unity 激活 |
+
+本仓库保留旧提交、分支、标签与 Release 下载链接；新开发以 `main` 为入口。[拆分记录](docs/PROJECTS.md)。布朗及参考立绘的权利说明见 [BROWN](docs/maze3d/BROWN.md)、[ART](docs/maze3d/ART.md)，字体和引擎保留各自许可。

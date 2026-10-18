@@ -1,12 +1,8 @@
 build/
-app/build/
-app/src/main/res/raw/
-.gradle/
+**/.godot/
+__pycache__/
+*.pyc
+*.p12
+*.blend1
 .idea/
 local.properties
-*.p12
-godot/.godot/
-maze-godot/.godot/
-__pycache__/
-maze3d/.godot/
-*.blend1
