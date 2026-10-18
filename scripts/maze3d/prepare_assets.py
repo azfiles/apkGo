@@ -2,7 +2,7 @@ from pathlib import Path
 from fontTools import subset
 import wave,math,struct,random
 ROOT=Path(__file__).resolve().parents[2]/'maze3d'
-text=''.join(p.read_text() for p in (ROOT/'scripts').glob('*.gd'))+''.join(chr(i) for i in range(32,127))+'→←↑↓×Ⅱ0123456789'
+text=''.join(p.read_text() for p in (ROOT/'scripts').glob('*.gd'))+''.join(p.read_text() for p in (ROOT/'levels').glob('*.json'))+''.join(chr(i) for i in range(32,127))+'→←↑↓×Ⅱ0123456789'
 for target,source in [('regular','NotoSansCJK-Regular'),('bold','NotoSansCJK-Bold'),('title','NotoSerifCJK-Regular')]:
     opts=subset.Options();opts.font_number=2
     font=subset.load_font('/usr/share/fonts/opentype/noto/'+source+'.ttc',opts)

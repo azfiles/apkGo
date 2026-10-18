@@ -5,7 +5,7 @@ func check(ok:bool,label:String) -> void:
 	if not ok:push_error(label);quit(1)
 	assert(ok,label);checks+=1
 func _initialize() -> void:
-	for chapter in 3:
+	for chapter in Maze.Levels.count():
 		var m=Maze.new();m.build(chapter)
 		var distances:Dictionary=m.distances(m.start)
 		var walkable_count:=0
@@ -14,7 +14,7 @@ func _initialize() -> void:
 				var c:=Vector2i(x,y)
 				if m.walkable(c):walkable_count+=1;check(m.cell(m.world(c))==c,"world/cell roundtrip")
 		check(distances.size()==walkable_count,"all passages connected")
-		check(m.beacons.size()==3 and m.motes.size()==12,"objective counts")
+		check(m.beacons.size()==3 and m.motes.size()==(12 if chapter<3 else 18),"objective counts")
 		check(m.goal not in m.beacons and m.goal not in m.motes,"distinct exit")
 		for target in m.beacons+[m.goal]:
 			var path:Array=m.path(m.start,target)
@@ -26,7 +26,7 @@ func _initialize() -> void:
 		var duplicate=Maze.new();duplicate.build(chapter)
 		check(duplicate.grid==m.grid and duplicate.beacons==m.beacons,"stable replay")
 		check(duplicate.challenges==m.challenges,"stable jump challenge layout")
-		check(m.challenges.size()==3+chapter*2,"three, five and seven jump challenges across chapters")
+		check(m.challenges.size()==3+chapter*2,"progressive jump challenges across chapters")
 		var kinds:Array=[]
 		for challenge in m.challenges:
 			kinds.append(challenge.kind)

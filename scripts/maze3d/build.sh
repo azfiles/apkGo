@@ -2,6 +2,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 GODOT="${GODOT:-godot}"
+VERSION="$(sed -n 's/^config\/version="\([^"]*\)"/\1/p' maze3d/project.godot)"
+: "${VERSION:?Missing project version}"
 : "${ANDROID_SDK_ROOT:=${ANDROID_HOME:-}}"
 : "${ANDROID_SDK_ROOT:?Set ANDROID_SDK_ROOT}"
 : "${JAVA_HOME:?Set JAVA_HOME to JDK 17}"
@@ -22,17 +24,29 @@ for platform in Android Linux; do
   timeout 300 "$GODOT" --headless --path maze3d --export-release "$platform" > "build/maze3d/export-${platform}-report.txt" 2>&1 || { cat "build/maze3d/export-${platform}-report.txt"; exit 1; }
   if grep -nE 'SCRIPT ERROR|ERROR:' "build/maze3d/export-${platform}-report.txt"; then exit 1; fi
 done
+# Resolve dynamic JSON/GLB references from the actual pack, outside the project.
+ROOT_PATH="$PWD"
+GODOT_ABSOLUTE="$(realpath "$(command -v "$GODOT")")"
+mkdir -p build/maze3d/export-probe build/maze3d/reports
+(
+  cd "$ROOT_PATH/build/maze3d/export-probe"
+  XDG_DATA_HOME="$ROOT_PATH/build/maze3d/export-probe-data" timeout 60 "$GODOT_ABSOLUTE" --headless --fixed-fps 60 --audio-driver Dummy --main-pack "$ROOT_PATH/build/maze3d/output/Pipi-Maze-Ruins.x86_64" --script "$ROOT_PATH/maze3d/tests/export_test.gd" > "$ROOT_PATH/build/maze3d/reports/standalone.txt" 2>&1
+)
+cat build/maze3d/reports/standalone.txt
+if grep -nE 'SCRIPT ERROR|ERROR:' build/maze3d/reports/standalone.txt; then exit 1; fi
+grep -Eq 'STANDALONE: [0-9]+ checks, 0 failures' build/maze3d/reports/standalone.txt
 BT="$ANDROID_SDK_ROOT/build-tools/35.0.0"
 "$BT/zipalign" -P 16 -f 4 build/maze3d/unsigned.apk build/maze3d/aligned.apk
 base64 --decode signing/demo-signing.p12.base64 > build/maze3d/demo-signing.p12
-APK=build/maze3d/output/Pipi-Maze-Ruins-0.4.0.apk
+APK="build/maze3d/output/Pipi-Maze-Ruins-$VERSION.apk"
 "$BT/apksigner" sign --ks build/maze3d/demo-signing.p12 --ks-pass pass:schulte-demo-public --ks-key-alias schulte-demo --out "$APK" build/maze3d/aligned.apk
 "$BT/apksigner" verify --verbose "$APK" > build/maze3d/apk-report.txt
 "$BT/zipalign" -c -P 16 -v 4 "$APK" >> build/maze3d/apk-report.txt
 "$BT/aapt2" dump badging "$APK" >> build/maze3d/apk-report.txt
 "$BT/aapt2" dump permissions "$APK" >> build/maze3d/apk-report.txt
 grep -q "package: name='com.alex.pipimaze.ruins'" build/maze3d/apk-report.txt
+grep -q "versionName='$VERSION'" build/maze3d/apk-report.txt
 if grep -nE 'android.permission.(INTERNET|RECORD_AUDIO|READ_EXTERNAL_STORAGE)' build/maze3d/apk-report.txt; then exit 1; fi
 chmod +x build/maze3d/output/Pipi-Maze-Ruins.x86_64
-(cd build/maze3d/output && sha256sum Pipi-Maze-Ruins-0.4.0.apk Pipi-Maze-Ruins.x86_64 > SHA256SUMS.txt)
+(cd build/maze3d/output && sha256sum "Pipi-Maze-Ruins-$VERSION.apk" Pipi-Maze-Ruins.x86_64 > SHA256SUMS.txt)
 cat build/maze3d/output/SHA256SUMS.txt

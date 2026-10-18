@@ -1,0 +1,403 @@
+{
+  "version": 1,
+  "units": "meters",
+  "blender_up": "Z",
+  "runtime_up": "Y",
+  "assets": {
+    "wall_0": {
+      "path": "res://assets/models/wall_0.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [
+        {
+          "size": [
+            4,
+            2.35,
+            4
+          ],
+          "position": [
+            0,
+            1.15,
+            0
+          ]
+        }
+      ],
+      "source_root": "RuinsWall"
+    },
+    "wall_1": {
+      "path": "res://assets/models/wall_1.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [
+        {
+          "size": [
+            4,
+            2.35,
+            4
+          ],
+          "position": [
+            0,
+            1.15,
+            0
+          ]
+        }
+      ],
+      "source_root": "RuinsWall.001"
+    },
+    "wall_2": {
+      "path": "res://assets/models/wall_2.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [
+        {
+          "size": [
+            4,
+            2.35,
+            4
+          ],
+          "position": [
+            0,
+            1.15,
+            0
+          ]
+        }
+      ],
+      "source_root": "RuinsWall.002"
+    },
+    "tree_0": {
+      "path": "res://assets/models/tree_0.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Tree"
+    },
+    "tree_1": {
+      "path": "res://assets/models/tree_1.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Tree.001"
+    },
+    "star": {
+      "path": "res://assets/models/star.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Star"
+    },
+    "portal": {
+      "path": "res://assets/models/portal.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Gate"
+    },
+    "pipi_explorer": {
+      "path": "res://assets/models/pipi_explorer.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Pipi"
+    },
+    "lantern": {
+      "path": "res://assets/models/lantern.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Lantern"
+    },
+    "hurdle": {
+      "path": "res://assets/models/hurdle.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Hurdle"
+    },
+    "grass": {
+      "path": "res://assets/models/grass.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Grass"
+    },
+    "crystal": {
+      "path": "res://assets/models/crystal.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Crystal"
+    },
+    "cloud": {
+      "path": "res://assets/models/cloud.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [],
+      "source_root": "Cloud"
+    },
+    "brown": {
+      "path": "res://assets/models/brown.glb",
+      "source": "model-source/maze3d/brown_character.blend",
+      "root": "Brown",
+      "colliders": [],
+      "animation_nodes": [
+        "Body",
+        "Torso",
+        "Head",
+        "ArmL",
+        "ArmR",
+        "ElbowL",
+        "ElbowR",
+        "LegL",
+        "LegR",
+        "KneeL",
+        "KneeR",
+        "EarL",
+        "EarR",
+        "Satchel"
+      ],
+      "source_root": "Brown"
+    },
+    "beacon": {
+      "path": "res://assets/models/beacon.glb",
+      "source": "model-source/maze3d/pipi_ruins_library.blend",
+      "colliders": [
+        {
+          "size": [
+            0.95,
+            1.1,
+            0.95
+          ],
+          "position": [
+            0,
+            0.55,
+            0
+          ]
+        }
+      ],
+      "source_root": "Beacon"
+    },
+    "courtyard_tile": {
+      "path": "res://assets/models/courtyard_tile.glb",
+      "source": "model-source/maze3d/starbridge_library.blend",
+      "colliders": [
+        {
+          "size": [
+            4,
+            0.6,
+            4
+          ],
+          "position": [
+            0,
+            -0.32,
+            0
+          ]
+        }
+      ],
+      "source_root": "courtyard_tile"
+    },
+    "garden_bridge": {
+      "path": "res://assets/models/garden_bridge.glb",
+      "source": "model-source/maze3d/starbridge_library.blend",
+      "colliders": [
+        {
+          "size": [
+            4,
+            0.6,
+            4
+          ],
+          "position": [
+            0,
+            -0.32,
+            0
+          ]
+        },
+        {
+          "size": [
+            0.18,
+            0.7,
+            4
+          ],
+          "position": [
+            -1.88,
+            0.35,
+            0
+          ]
+        },
+        {
+          "size": [
+            0.18,
+            0.7,
+            4
+          ],
+          "position": [
+            1.88,
+            0.35,
+            0
+          ]
+        }
+      ],
+      "source_root": "garden_bridge"
+    },
+    "ruins_arch": {
+      "path": "res://assets/models/ruins_arch.glb",
+      "source": "model-source/maze3d/starbridge_library.blend",
+      "colliders": [
+        {
+          "size": [
+            0.52,
+            3.3,
+            0.7
+          ],
+          "position": [
+            -1.7,
+            1.65,
+            0
+          ]
+        },
+        {
+          "size": [
+            0.52,
+            3.3,
+            0.7
+          ],
+          "position": [
+            1.7,
+            1.65,
+            0
+          ]
+        }
+      ],
+      "source_root": "ruins_arch"
+    },
+    "ruins_column": {
+      "path": "res://assets/models/ruins_column.glb",
+      "source": "model-source/maze3d/starbridge_library.blend",
+      "colliders": [
+        {
+          "size": [
+            0.9,
+            3.8,
+            0.9
+          ],
+          "position": [
+            0,
+            1.9,
+            0
+          ]
+        }
+      ],
+      "source_root": "ruins_column"
+    },
+    "garden_fountain": {
+      "path": "res://assets/models/garden_fountain.glb",
+      "source": "model-source/maze3d/starbridge_library.blend",
+      "colliders": [
+        {
+          "size": [
+            2.7,
+            1.1,
+            2.7
+          ],
+          "position": [
+            0,
+            0.55,
+            0
+          ]
+        }
+      ],
+      "source_root": "garden_fountain"
+    },
+    "garden_pavilion": {
+      "path": "res://assets/models/garden_pavilion.glb",
+      "source": "model-source/maze3d/starbridge_library.blend",
+      "colliders": [
+        {
+          "size": [
+            0.4,
+            3.8,
+            0.4
+          ],
+          "position": [
+            -2.4,
+            1.9,
+            -2.4
+          ]
+        },
+        {
+          "size": [
+            0.4,
+            3.8,
+            0.4
+          ],
+          "position": [
+            -2.4,
+            1.9,
+            2.4
+          ]
+        },
+        {
+          "size": [
+            0.4,
+            3.8,
+            0.4
+          ],
+          "position": [
+            2.4,
+            1.9,
+            -2.4
+          ]
+        },
+        {
+          "size": [
+            0.4,
+            3.8,
+            0.4
+          ],
+          "position": [
+            2.4,
+            1.9,
+            2.4
+          ]
+        }
+      ],
+      "source_root": "garden_pavilion"
+    },
+    "flower_planter": {
+      "path": "res://assets/models/flower_planter.glb",
+      "source": "model-source/maze3d/starbridge_library.blend",
+      "colliders": [
+        {
+          "size": [
+            1.7,
+            0.6,
+            0.8
+          ],
+          "position": [
+            0,
+            0.3,
+            0
+          ]
+        }
+      ],
+      "source_root": "flower_planter"
+    },
+    "aqueduct": {
+      "path": "res://assets/models/aqueduct.glb",
+      "source": "model-source/maze3d/starbridge_library.blend",
+      "colliders": [
+        {
+          "size": [
+            0.7,
+            4.5,
+            1
+          ],
+          "position": [
+            -3.5,
+            2.25,
+            0
+          ]
+        },
+        {
+          "size": [
+            0.7,
+            4.5,
+            1
+          ],
+          "position": [
+            3.5,
+            2.25,
+            0
+          ]
+        }
+      ],
+      "source_root": "aqueduct"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 extends Control
+const Levels=preload("res://scripts/level_data.gd")
 var game
 var regular: Font = preload("res://assets/ui-regular.otf")
 var bold: Font = preload("res://assets/ui-bold.otf")
@@ -65,7 +66,7 @@ func draw_home(w: float) -> void:
 	text("PIPI MAZE",Vector2(83,57),24,TEXT,latin)
 	text("3D EXPLORATION",Vector2(240,54),12,SOFT,latin)
 	panel(Rect2(w-218,30,174,33),Color(.90,.95,.86,.94),16)
-	centered("体验版  /  0.4.0",Vector2(w-131,52),14,SOFT)
+	centered("体验版  /  "+str(ProjectSettings.get_setting("application/config/version")),Vector2(w-131,52),14,SOFT)
 	text("A LITTLE STAR. A BIG ADVENTURE.",Vector2(63,145),14,GOLD,latin)
 	text("灯火",Vector2(58,241),76,TEXT,bold)
 	text("遗迹",Vector2(58,330),76,TEXT,bold)
@@ -87,15 +88,16 @@ func draw_home(w: float) -> void:
 	button("preview_out","−",Rect2(w-318,462,42,36),false,true)
 	button("preview_in","+",Rect2(w-266,462,42,36),false,true)
 	button("preview_reset","回到正面",Rect2(w-210,462,126,36),false,true)
-	for i in 3:
-		var r:=Rect2(w-590+i*180,546,168,102)
+	var card_width:float=(558.0-12*(Levels.count()-1))/Levels.count()
+	for i in Levels.count():
+		var r:=Rect2(w-614+i*(card_width+12),546,card_width,102)
 		var selected:bool=game.chapter==i
 		panel(r,Color(1,.93,.70,.98) if selected else Color(.98,.99,.93,.96),12,GOLD if selected else Color(.25,.45,.34,.20))
 		text("0%d"%(i+1),r.position+Vector2(16,29),15,GOLD if selected else SOFT,latin)
 		for star in 3:
-			star_icon(r.position+Vector2(113+star*15,24),5.5,Color("e4ad38"),star<int(game.records.get(str(i),{}).get("stars",0)))
-		text(game.world.maze.TITLES[i],r.position+Vector2(16,60),22,TEXT,bold)
-		text(["入门 · 庭院","进阶 · 回廊","挑战 · 深境"][i],r.position+Vector2(16,85),13,SOFT)
+			star_icon(r.position+Vector2(card_width-48+star*14,24),5.5,Color("e4ad38"),star<int(game.records.get(str(i),{}).get("stars",0)))
+		text(Levels.chapters()[i].title,r.position+Vector2(12,60),22,TEXT,bold)
+		text(Levels.chapters()[i].difficulty,r.position+Vector2(12,85),13,SOFT)
 		buttons.append({"id":"chapter%d"%i,"rect":r})
 	draw_rect(Rect2(0,659,w,61),Color(.98,.98,.92,.94))
 	line(Vector2(64,672),Vector2(w-48,672))
@@ -106,8 +108,9 @@ func draw_hud(w: float) -> void:
 	# Thin top fade keeps scenery legible while maintaining type contrast.
 	for i in 20:draw_rect(Rect2(0,i*6,w,6),Color(1,.99,.92,.95*(1-float(i)/20)))
 	text("CHAPTER 0%d"%(game.chapter+1),Vector2(32,35),12,GOLD,latin)
-	text(game.world.maze.TITLES[game.chapter],Vector2(31,69),28,TEXT,serif)
-	text("点亮灯塔，唤醒出口",Vector2(32,96),14,SOFT)
+	text(game.world.maze.definition.title,Vector2(31,69),28,TEXT,serif)
+	var region:Dictionary=game.world.maze.region_at(game.world.maze.cell(game.world.player.position))
+	text(region.get("name","点亮灯塔，唤醒出口"),Vector2(32,96),14,SOFT)
 	panel(Rect2(w/2-150,23,300,66),PANEL,14)
 	for i in 3:
 		var p:=Vector2(w/2-112+i*34,54)
@@ -115,7 +118,7 @@ func draw_hud(w: float) -> void:
 	text("灯塔  %d / 3"%game.world.activated.size(),Vector2(w/2+5,62),20,TEXT,bold)
 	panel(Rect2(w-320,28,118,42),PANEL,20)
 	star_icon(Vector2(w-296,49),10,Color("efbd46"))
-	text("%02d / 12"%game.world.collected.size(),Vector2(w-281,56),17,TEXT,latin)
+	text("%02d / %d"%[game.world.collected.size(),game.world.maze.motes.size()],Vector2(w-281,56),17,TEXT,latin)
 	button("pause","Ⅱ",Rect2(w-77,26,48,44),false,true)
 	text(time_text(game.world.elapsed),Vector2(w-185,56),17,SOFT,latin)
 	panel(Rect2(w-179,91,150,172),PANEL,14)
@@ -192,7 +195,8 @@ func draw_pause(w: float) -> void:
 	button("resume","继续探索",Rect2(x+48,236,414,57),true)
 	button("sound","声音与震动  ·  "+("开" if game.settings.sound else "关"),Rect2(x+48,311,201,48),false,true)
 	button("quality","画质  ·  "+("精致" if game.settings.quality else "流畅"),Rect2(x+261,311,201,48),false,true)
-	button("sensitivity","镜头灵敏度  ·  "+("标准" if game.settings.sensitivity==1.0 else ("灵敏" if game.settings.sensitivity>1 else "柔和")),Rect2(x+48,371,414,45),false,true)
+	button("sensitivity","镜头灵敏度  ·  "+("标准" if game.settings.sensitivity==1.0 else ("灵敏" if game.settings.sensitivity>1 else "柔和")),Rect2(x+48,371,254,45),false,true)
+	button("fps","帧率  ·  "+("开" if game.settings.show_fps else "关"),Rect2(x+314,371,148,45),false,true)
 	button("retry","重新探索本章",Rect2(x+48,430,414,48),false,true)
 	button("home","返回首页",Rect2(x+48,491,414,48),false,true)
 	centered("WASD 移动  /  拖动或 Q、R 转向  /  C 回正",Vector2(w/2,581),14,SOFT)
@@ -218,7 +222,11 @@ func draw_minimap(r: Rect2,full: bool) -> void:
 		for x in maze.width:
 			var c:=Vector2i(x,z)
 			var p:Vector2=r.position+Vector2(x,z)*tile
-			if maze.seen.has(c):draw_rect(Rect2(p,Vector2.ONE*(tile-.7)),Color("b5cdb0") if maze.walkable(c) else Color("719486"))
+			if maze.seen.has(c):
+				var color:=Color("b5cdb0") if maze.walkable(c) else Color("719486")
+				if maze.surface(c)=="~":color=Color("8fcbd2")
+				elif maze.surface(c)=="=":color=Color("e5ca8c")
+				draw_rect(Rect2(p,Vector2.ONE*(tile-.7)),color)
 	for challenge in maze.challenges:
 		if maze.seen.has(challenge.cell):
 			var p:=r.position+(Vector2(challenge.cell)+Vector2(.5,.5))*tile
@@ -241,14 +249,14 @@ func draw_win(w: float) -> void:
 	centered("JOURNEY COMPLETE",Vector2(w/2,108),14,GOLD,latin)
 	for i in 3:star_icon(Vector2(w/2-57+i*57,158),23,Color("efbd46") if i<game.finish_stars else SOFT.lightened(.4),i<game.finish_stars)
 	centered("你让遗迹重新发光",Vector2(w/2,226),37,TEXT,serif)
-	centered(game.world.maze.TITLES[game.chapter]+"  ·  探索完成",Vector2(w/2,265),19,SOFT)
+	centered(game.world.maze.definition.title+"  ·  探索完成",Vector2(w/2,265),19,SOFT)
 	line(Vector2(x+50,298),Vector2(x+490,298))
 	for i in 3:
 		var cx:=x+104+i*166
-		centered([time_text(game.world.elapsed),"%d / 12"%game.world.collected.size(),str(game.world.hints_used)][i],Vector2(cx,349),27,TEXT,latin)
+		centered([time_text(game.world.elapsed),"%d / %d"%[game.world.collected.size(),game.world.maze.motes.size()],str(game.world.hints_used)][i],Vector2(cx,349),27,TEXT,latin)
 		centered(["探索用时","收集星星","引路次数"][i],Vector2(cx,380),15,SOFT)
-	centered("6 枚星星获得双星，12 枚点亮三星",Vector2(w/2,425),15,GOLD)
-	button("next","进入下一章  →" if game.chapter<2 else "再访初光庭院  →",Rect2(x+54,463,432,59),true)
+	centered("%d 枚星星获得双星，%d 枚点亮三星"%[ceili(game.world.maze.motes.size()/2.0),game.world.maze.motes.size()],Vector2(w/2,425),15,GOLD)
+	button("next","进入下一章  →" if game.chapter<Levels.count()-1 else "再访初光庭院  →",Rect2(x+54,463,432,59),true)
 	button("home","返回首页",Rect2(x+54,539,432,48),false,true)
 	centered("灯火与最佳记录已保存在本机",Vector2(w/2,627),13,SOFT)
 func draw_confirm(w: float) -> void:

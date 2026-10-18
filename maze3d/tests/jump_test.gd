@@ -78,7 +78,7 @@ func run() -> void:
 	check(w.jumps==before+1 and not w.player.is_on_floor(),"late press buffers a jump on landing")
 	await frames(50)
 
-	for chapter in 3:
+	for chapter in app.Levels.count():
 		app.chapter=chapter;app.start_game(false);w=app.world;await frames(8)
 		var hurdle:Dictionary={};var gap:Dictionary={}
 		for challenge in w.maze.challenges:

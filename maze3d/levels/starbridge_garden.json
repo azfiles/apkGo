@@ -1,0 +1,609 @@
+{
+  "version": 1,
+  "id": "starbridge_garden",
+  "title": "星桥水庭",
+  "subtitle": "穿过星桥，让水庭重焕光彩",
+  "difficulty": "探索 · 水庭",
+  "seed": 94031,
+  "tile_size": 4.0,
+  "grid": [
+    "###################",
+    "#.....#.~~~.......#",
+    "#.....#.~~~.#...###",
+    "#.......===.....#.#",
+    "###.###.~~~.#####.#",
+    "#...#...~~~.#...#.#",
+    "#.#####.~~~.#.###.#",
+    "#.......~~~.#.....#",
+    "#.#####.~~~.#.....#",
+    "#...#...===.#..~..#",
+    "#####.#.~~~.#.....#",
+    "#.....#.~~~.......#",
+    "#.#####.~~~.#.#.#.#",
+    "#.#.....~~~...#.#.#",
+    "#.#.###.~~~.###.#.#",
+    "#...#...===.....#.#",
+    "#...#.#.~~~.#...#.#",
+    "#.....#.~~~.......#",
+    "###################"
+  ],
+  "start": [
+    1,
+    17
+  ],
+  "goal": [
+    17,
+    1
+  ],
+  "beacons": [
+    [
+      3,
+      2
+    ],
+    [
+      15,
+      8
+    ],
+    [
+      15,
+      16
+    ]
+  ],
+  "motes": [
+    [
+      9,
+      15
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      9,
+      3
+    ],
+    [
+      3,
+      16
+    ],
+    [
+      4,
+      2
+    ],
+    [
+      14,
+      2
+    ],
+    [
+      14,
+      8
+    ],
+    [
+      16,
+      10
+    ],
+    [
+      14,
+      16
+    ],
+    [
+      17,
+      8
+    ],
+    [
+      13,
+      15
+    ],
+    [
+      17,
+      17
+    ],
+    [
+      13,
+      12
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      17,
+      5
+    ],
+    [
+      6,
+      15
+    ],
+    [
+      11,
+      5
+    ],
+    [
+      7,
+      3
+    ]
+  ],
+  "elevated_motes": [
+    0,
+    1,
+    2,
+    5,
+    7
+  ],
+  "challenges": [
+    {
+      "cell": [
+        12,
+        1
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        16,
+        1
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        7,
+        2
+      ],
+      "axis": [
+        0,
+        1
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        11,
+        4
+      ],
+      "axis": [
+        0,
+        1
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        17,
+        4
+      ],
+      "axis": [
+        0,
+        1
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        2,
+        5
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        6,
+        5
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        14,
+        5
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        3,
+        7
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    }
+  ],
+  "scenery": [
+    {
+      "asset": "ruins_arch",
+      "position": [
+        -4,
+        0,
+        -24
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "ruins_arch",
+      "position": [
+        4,
+        0,
+        -24
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "ruins_arch",
+      "position": [
+        -4,
+        0,
+        0
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "ruins_arch",
+      "position": [
+        4,
+        0,
+        0
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "ruins_arch",
+      "position": [
+        -4,
+        0,
+        24
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "ruins_arch",
+      "position": [
+        4,
+        0,
+        24
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "aqueduct",
+      "position": [
+        0,
+        0,
+        -12
+      ],
+      "rotation_y": 0,
+      "scale": 1.5,
+      "collisions": true
+    },
+    {
+      "asset": "aqueduct",
+      "position": [
+        0,
+        0,
+        12
+      ],
+      "rotation_y": 0,
+      "scale": 1.5,
+      "collisions": true
+    },
+    {
+      "asset": "garden_fountain",
+      "position": [
+        24,
+        -0.05,
+        0
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "garden_pavilion",
+      "position": [
+        -24,
+        0,
+        -28
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "garden_pavilion",
+      "position": [
+        20,
+        0,
+        28
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        -6.559999999999999,
+        0,
+        -16
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        6.560000000000002,
+        0,
+        -16
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        -6.559999999999999,
+        0,
+        -8
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        6.560000000000002,
+        0,
+        -8
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        -6.559999999999999,
+        0,
+        8
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        6.560000000000002,
+        0,
+        8
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        -6.559999999999999,
+        0,
+        16
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        6.560000000000002,
+        0,
+        16
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        -6.559999999999999,
+        0,
+        32
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "flower_planter",
+      "position": [
+        6.560000000000002,
+        0,
+        32
+      ],
+      "rotation_y": 90,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        -9.399999999999999,
+        0,
+        -22.64
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        9.399999999999999,
+        0,
+        -22.64
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        -9.399999999999999,
+        0,
+        1.3599999999999994
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        9.399999999999999,
+        0,
+        1.3599999999999994
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        -9.399999999999999,
+        0,
+        25.36
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        9.399999999999999,
+        0,
+        25.36
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    }
+  ],
+  "bridge_rotation_y": 90,
+  "environment": {
+    "background": "b8dce7",
+    "fog": "c1e0df",
+    "water": "66bdcb"
+  },
+  "regions": [
+    {
+      "name": "迎光花庭",
+      "bounds": [
+        1,
+        10,
+        7,
+        17
+      ],
+      "floor": "e4dfc1"
+    },
+    {
+      "name": "星桥水道",
+      "bounds": [
+        7,
+        1,
+        11,
+        17
+      ],
+      "floor": "d6e4d6"
+    },
+    {
+      "name": "回响拱廊",
+      "bounds": [
+        1,
+        1,
+        6,
+        9
+      ],
+      "floor": "d5e4ca"
+    },
+    {
+      "name": "喷泉中庭",
+      "bounds": [
+        12,
+        1,
+        17,
+        11
+      ],
+      "floor": "e6dfc7"
+    },
+    {
+      "name": "归星凉亭",
+      "bounds": [
+        12,
+        12,
+        17,
+        17
+      ],
+      "floor": "dae0c6"
+    }
+  ]
+}

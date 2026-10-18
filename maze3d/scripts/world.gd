@@ -5,7 +5,7 @@ signal escaped
 signal message(text: String)
 const Maze = preload("res://scripts/maze.gd")
 const Character = preload("res://scripts/character.gd")
-const MODEL_PATH := "res://assets/models/"
+const Assets = preload("res://scripts/asset_library.gd")
 const GRAVITY := 18.0
 const JUMP_SPEED := 6.8
 const COYOTE_TIME := .10
@@ -44,7 +44,6 @@ var camera_ready := false
 var camera_distance := 6.8
 var high_quality := true
 var materials: Dictionary = {}
-var scenes: Dictionary = {}
 var joints: Dictionary = {}
 var joint_base: Dictionary = {}
 var character = Character.new()
@@ -105,7 +104,8 @@ func _ready() -> void:
 		var lamp:=OmniLight3D.new();lamp.light_color=Color("ffd38c");lamp.omni_range=5;lamp.light_energy=.12
 		add_child(lamp);lamp_lights.append(lamp)
 
-func build(chapter: int, saved: Dictionary = {}) -> void:
+func build(chapter: int, saved: Dictionary = {}) -> bool:
+	if not maze.build(chapter): return false
 	active=false;camera_ready=false
 	input_move=Vector2.ZERO;sprint=false;energy=1.0;elapsed=0.0;clock=0.0
 	activated.clear();collected.clear();light_nodes.clear();mote_nodes.clear();joints.clear();joint_base.clear();fx.clear();lantern_positions.clear()
@@ -115,13 +115,15 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 	if dynamic:remove_child(dynamic);dynamic.queue_free()
 	geo=Node3D.new();add_child(geo)
 	dynamic=Node3D.new();add_child(dynamic)
-	maze.build(chapter)
-	var rng:=RandomNumberGenerator.new();rng.seed=591+chapter
+	geo.name="Geometry";dynamic.name="Gameplay"
+	var style:Dictionary=maze.definition.get("environment",{})
+	env.background_color=Color(style.get("background","b9dfe0"))
+	env.fog_light_color=Color(style.get("fog","c7e2d7"))
+	var rng:=RandomNumberGenerator.new();rng.seed=int(maze.definition.seed)
 	var size:float=maze.width*Maze.TILE
 	# Individual floor colliders leave real openings beneath broken bridges.
 	box(Vector3(size+3,.35,size+3),Vector3(0,-4,0),"82b9b5",geo)
 	# One shared mesh per material; _batch_static consolidates into GPU instances.
-	var tile_mesh:=BoxMesh.new();tile_mesh.size=Vector3(3.96,.10,3.96)
 	var mark_mesh:=BoxMesh.new();mark_mesh.size=Vector3(.40,.012,.055)
 	var mark_mat:=material("aebfa1")
 	var tile_mats: Array = [material("d9dfbe"),material("e0e3c7"),material("d4dbb9"),material("e5e5c9")]
@@ -134,8 +136,15 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 				if challenge.get("kind","")=="gap":
 					build_gap(p,challenge)
 					continue
-				var tile:=MeshInstance3D.new();tile.mesh=tile_mesh;tile.material_override=tile_mats[rng.randi_range(0,3)];tile.position=p-Vector3(0,.07,0);geo.add_child(tile)
-				collider(Vector3(4,.6,4),p-Vector3(0,.32,0))
+				if maze.surface(cell)=="=":
+					var bridge:=model("garden_bridge",geo,p,true)
+					bridge.rotation_degrees.y=float(maze.definition.get("bridge_rotation_y",0))
+					apply_wall_material(bridge)
+					continue
+				var tile:=model("courtyard_tile",geo,p,true)
+				var region:Dictionary=maze.region_at(cell)
+				var floor_mat:Material=material(region.floor) if region.has("floor") else tile_mats[rng.randi_range(0,3)]
+				for part in tile.find_children("TileTop*","MeshInstance3D",true,false):part.material_override=floor_mat
 				if not challenge.is_empty():build_hurdle(p,challenge)
 				for k in 3:
 					var mark:=mesh(mark_mesh,mark_mat,geo,p+Vector3(rng.randf_range(-1.6,1.6),-.008,rng.randf_range(-1.6,1.6)));mark.rotation.y=PI/2 if k%2==0 else 0.0
@@ -144,10 +153,11 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 				if rng.randf()<.12 and cell!=maze.start and challenge.is_empty():
 					var pos:=p+Vector3(1.42,0,1.42)
 					var lantern:=model("lantern",geo,pos);apply_wall_material(lantern);lantern_positions.append(pos+Vector3(0,1.7,0))
+			elif maze.surface(cell)=="~":
+				box(Vector3(3.98,.06,3.98),p-Vector3(0,1.1,0),style.get("water","69bfc9"),geo)
 			else:
-				var wall:=model("wall_"+str(rng.randi_range(0,2)),geo,p)
+				var wall:=model("wall_"+str(rng.randi_range(0,2)),geo,p,true)
 				apply_wall_material(wall)
-				collider(Vector3(4,2.35,4),p+Vector3(0,1.15,0))
 				if (x==0 or z==0 or x==maze.width-1 or z==maze.width-1) and (x+z)%3==0:
 					var tree:=model("tree_"+str(chapter%2),geo,p+Vector3(0,2.25,0));tree.rotation.y=rng.randf()*TAU;tree.scale=Vector3.ONE*rng.randf_range(.85,1.35)
 					apply_wall_material(tree)
@@ -168,8 +178,7 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 	ring(1.25,.035,start_p+Vector3(0,.03,0),Color("d5bd83"),geo)
 	for i in 3:
 		var p:Vector3=maze.world(maze.beacons[i])+Vector3(1.05,0,-1.05)
-		model("beacon",geo,p)
-		collider(Vector3(.95,1.1,.95),p+Vector3(0,.55,0))
+		model("beacon",geo,p,true)
 		ring(.95,.035,p+Vector3(0,.035,0),Color("b5c6ae"),geo)
 		var orb:=model("crystal",dynamic,p+Vector3(0,1.85,0))
 		light_nodes.append(orb)
@@ -213,10 +222,20 @@ func build(chapter: int, saved: Dictionary = {}) -> void:
 	if not saved.is_empty():restore(saved)
 	for i in activated:add_beam(i)
 	update_gate()
+	_build_scenery()
 	_batch_static()
 	_make_fireflies(rng)
 	last_position=player.position
 	set_quality(high_quality)
+	return true
+
+func _build_scenery() -> void:
+	for placement in maze.definition.get("scenery",[]):
+		var node:=model(placement.asset,geo,Assets.vector(placement.position),placement.get("collisions",true))
+		node.rotation_degrees.y=float(placement.get("rotation_y",0))
+		node.scale=Vector3.ONE*float(placement.get("scale",1))
+		apply_wall_material(node)
+		if placement.asset=="lantern":lantern_positions.append(node.position+Vector3(0,1.7,0))
 
 func _physics_process(dt: float) -> void:
 	if not is_instance_valid(player):return
@@ -452,7 +471,7 @@ func snapshot() -> Dictionary:
 	# Save a supported landing point, never an airborne position above a gap.
 	var p:=safe_position
 	if player.is_on_floor() and maze.safe_cell(maze.cell(player.position)):p=player.position
-	return {"chapter":maze.chapter,"position":[p.x,p.z],"activated":activated.duplicate(),"collected":collected.duplicate(),"elapsed":elapsed,"seen":explored,"hints":hints_used,"yaw":yaw,"pitch":pitch,"jumps":jumps,"rescues":rescues}
+	return {"chapter":maze.chapter,"level_id":maze.definition.id,"position":[p.x,p.z],"activated":activated.duplicate(),"collected":collected.duplicate(),"elapsed":elapsed,"seen":explored,"hints":hints_used,"yaw":yaw,"pitch":pitch,"jumps":jumps,"rescues":rescues}
 func restore(data: Dictionary) -> void:
 	# Only restore valid, walkable positions and bounded progress values.
 	var p=data.get("position",[])
@@ -499,9 +518,8 @@ func box(size: Vector3,pos: Vector3,hex: String,parent: Node3D) -> MeshInstance3
 func collider(size: Vector3,pos: Vector3) -> void:
 	var body:=StaticBody3D.new();var collision:=CollisionShape3D.new();var shape:=BoxShape3D.new();shape.size=size;collision.shape=shape
 	body.position=pos;body.add_child(collision);geo.add_child(body)
-func model(name: String,parent: Node3D,pos: Vector3) -> Node3D:
-	if not scenes.has(name):scenes[name]=load(MODEL_PATH+name+".glb")
-	var node:Node3D=scenes[name].instantiate();node.position=pos;parent.add_child(node);return node
+func model(name: String,parent: Node3D,pos: Vector3,collisions: bool=false) -> Node3D:
+	return Assets.instantiate(name,parent,pos,collisions)
 func ring(radius: float,thickness: float,pos: Vector3,color: Color,parent: Node3D) -> MeshInstance3D:
 	var m:=TorusMesh.new();m.inner_radius=radius-thickness;m.outer_radius=radius+thickness;m.rings=32;m.ring_segments=6
 	return mesh(m,material(color.to_html(false),true),parent,pos)

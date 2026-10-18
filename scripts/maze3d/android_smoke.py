@@ -57,6 +57,12 @@ def preview(pattern,label):
         if match:check(True,label);return match
         time.sleep(.25)
     raise AssertionError('Preview event missing: '+label)
+def fps_setting(expected,label):
+    states=re.findall(r'PIPI_FPS (true|false)',logs())
+    check(bool(states) and states[-1]==str(expected).lower(),label)
+def active_level(expected,label):
+    states=re.findall(r'PIPI_LEVEL (\w+)',logs())
+    check(bool(states) and states[-1]==expected,label)
 def shot(name):
     until=time.monotonic()+90
     while time.monotonic()<until:
@@ -75,7 +81,8 @@ def run():
     adb('shell','settings','put','secure','immersive_mode_confirmations','confirmed')
     adb('shell','settings','put','system','accelerometer_rotation','0')
     adb('shell','input','keyevent','82')
-    apk=ROOT/'build/maze3d/output/Pipi-Maze-Ruins-0.4.0.apk'
+    version=re.search(r'^config/version="([^"]+)"$',(ROOT/'maze3d/project.godot').read_text(),re.M).group(1)
+    apk=ROOT/f'build/maze3d/output/Pipi-Maze-Ruins-{version}.apk'
     check(b'Success' in adb('install','--no-incremental','-r',str(apk),timeout=180),'install signed APK')
     adb('shell','pm','clear',PACKAGE);adb('logcat','-c');checkpoint()
     launch('release activity starts');shot('01-home')
@@ -97,13 +104,32 @@ def run():
     tap(1182,170,'map');shot('05-map')
     tap(1120,63,'play')
     tap(1224,46,'pause');shot('06-pause')
+    tap(773,393,'pause');fps_setting(False,'Android touch disables FPS');shot('06a-fps-off')
+    tap(773,393,'pause');fps_setting(True,'Android touch enables FPS')
+    tap(773,393,'pause');fps_setting(False,'FPS disabled before cold restart')
     tap(745,335,'pause') # low quality toggle
     tap(625,263,'play')
     checkpoint();adb('shell','input','keyevent','4');page('pause')
     tap(625,263,'play')
     checkpoint();adb('shell','input','keyevent','3');page('pause')
     launch('release cold restart after background',cold=True)
+    fps_setting(False,'FPS preference restored after Android cold restart')
     tap(207,513,'play');shot('07-restored')
+    tap(1224,46,'pause');tap(640,515,'home')
+    tap(1159,597,'home') # Fourth chapter card; a previous session still exists.
+    tap(207,581,'play') # Start selected chapter rather than continue the old one.
+    active_level('starbridge_garden','Android starts authored fourth chapter')
+    shot('08-starbridge')
+    adb('shell','input','swipe','155','565','155','465','1200')
+    tap(1182,170,'map');shot('08a-starbridge-map');tap(1120,63,'play')
+    tap(1224,46,'pause')
+    launch('release cold restart on fourth chapter',cold=True)
+    fps_setting(False,'FPS preference retained with fourth chapter save')
+    tap(207,513,'play')
+    active_level('starbridge_garden','Android cold resume retains fourth chapter')
+    shot('09-starbridge-restored')
+    tap(1224,46,'pause');tap(773,393,'pause')
+    fps_setting(True,'FPS can be re-enabled in the new scene');tap(625,263,'play')
     check(bool(adb('shell','pidof',PACKAGE).strip()),'release process remains alive')
     captured=logs()
     check(not any(term in captured for term in ['SCRIPT ERROR','FATAL EXCEPTION','Fatal signal','ERROR:']),'no Godot/Android errors or crashes')

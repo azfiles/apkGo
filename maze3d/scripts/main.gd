@@ -1,15 +1,18 @@
 extends Node3D
 const World = preload("res://scripts/world.gd")
 const Interface = preload("res://scripts/interface.gd")
+const Levels = preload("res://scripts/level_data.gd")
+const FrameCounter = preload("res://scripts/frame_counter.gd")
 var world
 var ui
+var frame_counter
 var page := "home"
 var chapter := 0
 var toast := ""
 var toast_timer := 0.0
 var session: Dictionary = {}
 var records: Dictionary = {}
-var settings := {"sound":true,"quality":true,"sensitivity":1.0}
+var settings := {"sound":true,"quality":true,"sensitivity":1.0,"show_fps":true}
 var move_pointer := -99
 var look_pointer := -99
 var sprint_pointer := -99
@@ -31,7 +34,7 @@ func _ready() -> void:
 	Engine.max_fps=60
 	load_progress()
 	world=World.new();add_child(world)
-	world.picked.connect(func():show_toast("星星 +1  ·  %d / 12"%world.collected.size(),1.4))
+	world.picked.connect(func():show_toast("星星 +1  ·  %d / %d"%[world.collected.size(),world.maze.motes.size()],1.4))
 	world.lit.connect(save_progress)
 	world.escaped.connect(finish)
 	world.message.connect(show_toast)
@@ -40,6 +43,8 @@ func _ready() -> void:
 	world.build(chapter)
 	var canvas:=CanvasLayer.new();add_child(canvas)
 	ui=Interface.new();ui.game=self;canvas.add_child(ui);ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame_counter=FrameCounter.new();canvas.add_child(frame_counter);frame_counter.visible=settings.show_fps
+	print("PIPI_FPS ",settings.show_fps)
 	ambiance=AudioStreamPlayer.new();ambiance.stream=load("res://assets/audio/ambience.wav");ambiance.volume_db=-22;add_child(ambiance)
 	ambiance.finished.connect(func():if settings.sound:ambiance.play())
 	if settings.sound:ambiance.play()
@@ -61,15 +66,17 @@ func _process(dt: float) -> void:
 		autosave_time+=dt
 		if autosave_time>8:autosave_time=0;save_progress()
 	if ui:ui.queue_redraw()
+	if frame_counter:frame_counter.place(page,get_viewport().get_visible_rect().size)
 
 func start_game(resume: bool=false) -> void:
 	if loading:return
 	loading=true
 	var data:Dictionary=session if resume else {}
-	if resume:chapter=clampi(int(data.get("chapter",chapter)),0,2)
-	world.build(chapter,data);world.title_mode=false;world.active=true;page="play"
+	if resume:chapter=resume_chapter(data)
+	if not world.build(chapter,data):loading=false;show_toast("这一章暂时无法打开，请稍后重试");return
+	world.title_mode=false;world.active=true;page="play"
 	reset_input();tutorial_time=18 if not resume else 5;show_toast("点亮三座灯塔 · 跳过障碍，收集高处星星",4)
-	save_progress();loading=false;print("PIPI_PAGE play")
+	save_progress();loading=false;print("PIPI_LEVEL ",world.maze.definition.id);print("PIPI_PAGE play")
 
 func action(id: String) -> void:
 	match id:
@@ -85,7 +92,7 @@ func action(id: String) -> void:
 		"retry":page="confirm";world.active=false;reset_input()
 		"confirm_retry":start_game(false)
 		"cancel_retry":page="pause"
-		"next":chapter=(chapter+1)%3;start_game(false)
+		"next":chapter=(chapter+1)%Levels.count();start_game(false)
 		"hint":world.hint()
 		"interact":world.interact()
 		"jump":
@@ -106,9 +113,12 @@ func action(id: String) -> void:
 			else:ambiance.stop()
 			save_progress()
 		"quality":settings.quality=not settings.quality;world.set_quality(settings.quality);save_progress()
+		"fps":settings.show_fps=not settings.show_fps;frame_counter.visible=settings.show_fps;save_progress();print("PIPI_FPS ",settings.show_fps)
 		"sensitivity":settings.sensitivity=1.5 if settings.sensitivity==1.0 else (0.7 if settings.sensitivity==1.5 else 1.0);save_progress()
-		"chapter0","chapter1","chapter2":
-			chapter=int(id.right(1));world.build(chapter);world.title_mode=true;reset_input()
+		_:
+			if id.begins_with("chapter") and id.trim_prefix("chapter").is_valid_int():
+				var index:=int(id.trim_prefix("chapter"))
+				if index>=0 and index<Levels.count():chapter=index;world.build(chapter);world.title_mode=true;reset_input()
 
 	print("PIPI_PAGE ",page)
 
@@ -119,8 +129,8 @@ func pause_game() -> void:
 
 func finish() -> void:
 	page="win";world.active=false;reset_input();finish_stars=1
-	if world.collected.size()>=6:finish_stars=2
-	if world.collected.size()==12:finish_stars=3
+	if world.collected.size()*2>=world.maze.motes.size():finish_stars=2
+	if world.collected.size()==world.maze.motes.size():finish_stars=3
 	var key:=str(chapter)
 	var record:Dictionary=records.get(key,{})
 	record["stars"]=maxi(finish_stars,int(record.get("stars",0)))
@@ -235,7 +245,13 @@ func load_progress() -> void:
 	if s is Dictionary:
 		settings.sound=bool(s.get("sound",true));settings.quality=bool(s.get("quality",true))
 		settings.sensitivity=clampf(float(s.get("sensitivity",1.0)),.7,1.5)
-	chapter=clampi(int(session.get("chapter",0)),0,2)
+		settings.show_fps=bool(s.get("show_fps",true))
+	chapter=resume_chapter(session)
+
+func resume_chapter(data: Dictionary) -> int:
+	for i in Levels.count():
+		if Levels.chapters()[i].id==data.get("level_id",""):return i
+	return clampi(int(data.get("chapter",0)),0,Levels.count()-1)
 func _notification(what: int) -> void:
 	if what==NOTIFICATION_APPLICATION_PAUSED or what==NOTIFICATION_APPLICATION_FOCUS_OUT:
 		if page=="play" or page=="map":pause_game()

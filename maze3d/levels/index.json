@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "chapters": [
+    {
+      "id": "first_light",
+      "path": "res://levels/first_light.json",
+      "title": "初光庭院",
+      "subtitle": "循着微光，找到归途",
+      "difficulty": "入门 · 庭院"
+    },
+    {
+      "id": "echo_halls",
+      "path": "res://levels/echo_halls.json",
+      "title": "回声回廊",
+      "subtitle": "转角之后，灯火仍在",
+      "difficulty": "进阶 · 回廊"
+    },
+    {
+      "id": "sleeping_stars",
+      "path": "res://levels/sleeping_stars.json",
+      "title": "星眠深境",
+      "subtitle": "让沉睡的遗迹再次亮起",
+      "difficulty": "挑战 · 深境"
+    },
+    {
+      "id": "starbridge_garden",
+      "path": "res://levels/starbridge_garden.json",
+      "title": "星桥水庭",
+      "subtitle": "穿过星桥，让水庭重焕光彩",
+      "difficulty": "探索 · 水庭"
+    }
+  ]
+}

@@ -29,6 +29,11 @@ func walk(target:Vector2i) -> void:
 				var center:Vector3=w.maze.world(obstacle.cell)
 				if w.flat_distance(w.player.position,center)<1.32:w.request_jump()
 			ticks+=1;await physics_frame
+		if ticks>=350:
+			print("WALK BLOCKED: target=",cell," position=",w.player.position," obstacle=",obstacle)
+			for i in w.player.get_slide_collision_count():
+				var contact=w.player.get_slide_collision(i)
+				print("CONTACT: ",contact.get_collider().get_path()," normal=",contact.get_normal())
 		check(ticks<350,"physically walk route cell "+str(cell))
 	app.joystick=Vector2.ZERO
 	await frames(10)
@@ -40,7 +45,7 @@ func run() -> void:
 	await frames(3)
 	check(app.page=="home","home startup")
 	check(not quit_on_go_back,"native Android back must not auto-quit")
-	for chapter in 3:
+	for chapter in app.Levels.count():
 		app.chapter=chapter;app.start_game(false);await frames(6)
 		var w=app.world
 		check(w.camera.projection==Camera3D.PROJECTION_PERSPECTIVE,"perspective camera")
@@ -77,11 +82,11 @@ func run() -> void:
 			w.interact();check(i in w.activated,"interaction lights beacon")
 		check(w.gate_surface.visible,"three beacons open portal")
 		for cell in w.maze.motes:await walk(cell)
-		check(w.collected.size()==12,"all twelve motes collect by collision")
+		check(w.collected.size()==w.maze.motes.size(),"all motes collect by collision")
 		var saved:Dictionary=w.snapshot()
 		app.save_progress();check(FileAccess.file_exists(app.SAVE_PATH),"atomic save written")
 		app.world.build(chapter,saved);w=app.world;w.title_mode=false;w.active=true;await frames(3)
-		check(w.activated.size()==3 and w.collected.size()==12,"restore progress")
+		check(w.activated.size()==3 and w.collected.size()==w.maze.motes.size(),"restore progress")
 		await walk(w.maze.goal);await frames(5)
 		check(w.near_gate,"exit reachable by real movement")
 		w.interact();check(app.page=="win" and app.finish_stars==3,"complete and award three stars")

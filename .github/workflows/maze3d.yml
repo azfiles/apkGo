@@ -1,6 +1,8 @@
 name: Pipi Maze 3D · verified preview
 on:
   workflow_dispatch:
+  push:
+    branches: ['release/maze-3d-*']
 permissions:
   contents: read
 concurrency:
@@ -41,6 +43,16 @@ jobs:
           timeout 120 xvfb-run -a -s '-screen 0 1280x720x24' "$GODOT" --fixed-fps 60 --audio-driver Dummy --path maze3d --script res://tests/art_capture.gd -- "$PWD/docs/maze3d/screenshots/10-character-motion.png" > build/maze3d/reports/art-capture.txt 2>&1
           cat build/maze3d/reports/art-capture.txt
           if grep -nE 'SCRIPT ERROR|ERROR:' build/maze3d/reports/art-capture.txt; then exit 1; fi
+          timeout 240 xvfb-run -a -s '-screen 0 1280x720x24' "$GODOT" --fixed-fps 60 --audio-driver Dummy --path maze3d --script res://tests/starbridge_capture.gd -- "$PWD/build/maze3d/starbridge-screens" > build/maze3d/reports/starbridge-capture.txt 2>&1
+          cat build/maze3d/reports/starbridge-capture.txt
+          if grep -nE 'SCRIPT ERROR|ERROR:' build/maze3d/reports/starbridge-capture.txt; then exit 1; fi
+          grep -Eq 'STARBRIDGE RENDER: [0-9]+ checks, 0 failures' build/maze3d/reports/starbridge-capture.txt
+          cp build/maze3d/starbridge-screens/01-four-chapters.png docs/maze3d/screenshots/11-four-chapters.png
+          cp build/maze3d/starbridge-screens/02-starbridge.png docs/maze3d/screenshots/12-starbridge.png
+          cp build/maze3d/starbridge-screens/03-fountain-court.png docs/maze3d/screenshots/13-fountain-court.png
+          cp build/maze3d/starbridge-screens/04-fps-on.png docs/maze3d/screenshots/14-fps-on.png
+          cp build/maze3d/starbridge-screens/06-waterways-map.png docs/maze3d/screenshots/15-waterways-map.png
+          cp build/maze3d/starbridge-screens/07-world-overview.png docs/maze3d/screenshots/16-starbridge-overview.png
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           LP_NUM_THREADS: '4'
@@ -73,6 +85,7 @@ jobs:
           path: |
             build/maze3d/reports/**
             build/maze3d/android/**
+            build/maze3d/starbridge-screens/**
             build/maze3d/*report.txt
             docs/maze3d/screenshots/**
   publish:
@@ -95,12 +108,25 @@ jobs:
           sha256sum -c SHA256SUMS.txt
           cp RELEASE_NOTES.md ../release-body.md
           printf '\n验证流水线：https://github.com/%s/actions/runs/%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" >> ../release-body.md
-          TAG=maze-3d-v0.4.0
+          VERSION="$(sed -n 's/^config\/version="\([^"]*\)"/\1/p' "$GITHUB_WORKSPACE/maze3d/project.godot")"
+          TITLE="$(head -n 1 "$GITHUB_WORKSPACE/docs/maze3d/RELEASE_NOTES.md" | sed 's/^# //')"
+          TAG="maze-3d-v$VERSION"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            TAG="maze-3d-v0.4.0-r${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
+            TAG="maze-3d-v$VERSION-r${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
           fi
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "Verified release already exists; leaving it unchanged: $TAG"
             exit 0
           fi
-          gh release create "$TAG" ./* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --latest=false --title 'Pipi Maze · 灯火遗迹 0.4.0 · 布朗焕新与星光庭院' --notes-file ../release-body.md
+          gh release create "$TAG" ./* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --latest=false --title "$TITLE" --notes-file ../release-body.md
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets > ../uploaded-assets.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          expected={p.name:p.stat().st_size for p in Path('.').iterdir() if p.is_file()}
+          actual={a['name']:a['size'] for a in json.loads(Path('../uploaded-assets.json').read_text())['assets']}
+          assert expected==actual, f'Release asset mismatch: expected {expected}, got {actual}'
+          print(f'Verified all {len(actual)} uploaded release assets before publication')
+          PY
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --prerelease --latest=false
+          printf 'Published: https://github.com/%s/releases/tag/%s\n' "$GITHUB_REPOSITORY" "$TAG" >> "$GITHUB_STEP_SUMMARY"
