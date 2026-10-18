@@ -1,5 +1,5 @@
 """Smoke test the signed release APK with actual Android input and captured frames."""
-import io,os,subprocess,time,re
+import io,os,subprocess,time,re,math
 from pathlib import Path
 from PIL import Image,ImageChops,ImageStat
 ROOT=Path(__file__).resolve().parents[2]
@@ -50,6 +50,13 @@ def page(expected,timeout=120):
 def tap(x,y,expected=None):
     checkpoint();adb('shell','input','tap',str(x),str(y))
     if expected:page(expected)
+def preview(pattern,label):
+    until=time.monotonic()+30
+    while time.monotonic()<until:
+        match=re.search(pattern,logs())
+        if match:check(True,label);return match
+        time.sleep(.25)
+    raise AssertionError('Preview event missing: '+label)
 def shot(name):
     until=time.monotonic()+90
     while time.monotonic()<until:
@@ -72,8 +79,13 @@ def run():
     check(b'Success' in adb('install','--no-incremental','-r',str(apk),timeout=180),'install signed APK')
     adb('shell','pm','clear',PACKAGE);adb('logcat','-c');checkpoint()
     launch('release activity starts');shot('01-home')
-    tap(1130,425);shot('01a-expression')
-    adb('shell','input','swipe','800','290','1000','320','600');shot('01b-character-side')
+    tap(1130,425)
+    preview(r'PIPI_PREVIEW expression Joy','Android touch selects happy expression')
+    shot('01a-expression')
+    adb('shell','input','touchscreen','swipe','800','290','1000','320','1000')
+    orbit=preview(r'PIPI_PREVIEW orbit ([-\d.]+)','Android touch finishes character orbit')
+    check(abs(math.remainder(float(orbit.group(1))+.5,math.tau))>1,'Android drag rotates character by more than one radian')
+    shot('01b-character-side')
     tap(1130,480) # Restore front view after inspecting the new model.
     tap(207,513,'play');initial=shot('02-play')
     adb('shell','input','swipe','155','565','155','465','1800')

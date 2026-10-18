@@ -50,6 +50,9 @@ func run() -> void:
 	check(rig.eyes[0].scale.y>.9,"eyes reopen after a blink")
 	app.action("preview_expression")
 	check(rig.mood_time>0,"homepage expression control is wired")
+	var chosen:String=rig.expression
+	rig.step(10,Vector3.ZERO,true,0,11.0,true)
+	check(rig.expression==chosen,"manually selected preview expression stays while inspecting all angles")
 	app.start_game(false);await frames(5);w=app.world
 	w.character.emote("Smile",.01)
 	w.player.position=w.mote_nodes[0].position-Vector3(0,.85,0);w.player.velocity=Vector3.ZERO

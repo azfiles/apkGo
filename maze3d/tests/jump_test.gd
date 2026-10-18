@@ -27,6 +27,8 @@ func run() -> void:
 	check(w.preview_pitch>.5,"home vertical drag changes elevation")
 	var held_yaw:float=w.preview_yaw;await frames(30)
 	check(is_equal_approx(held_yaw,w.preview_yaw),"home pose remains where released")
+	app.pointer_down(7,Vector2(800,300));app.pointer_move(7,Vector2(1000,330),Vector2.ZERO);app.pointer_up(7)
+	check(absf(angle_difference(held_yaw,w.preview_yaw))>1.5,"absolute touch positions rotate even when a device reports zero relative motion")
 	check(is_zero_approx(w.yaw),"preview orbit does not change gameplay yaw")
 	for i in 8:w.orbit_preview(Vector2(100,0))
 	check(w.preview_yaw>=-PI and w.preview_yaw<=PI,"orbit supports full revolutions without a horizontal stop")

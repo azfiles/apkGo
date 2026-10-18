@@ -96,7 +96,8 @@ func action(id: String) -> void:
 		"preview_expression":
 			var expressions=world.character.EXPRESSIONS
 			var next: int=(expressions.find(world.character.expression)+1)%expressions.size()
-			world.character.emote(expressions[next],4.0)
+			world.character.emote(expressions[next],INF)
+			print("PIPI_PREVIEW expression ",expressions[next])
 		"preview_in":world.zoom_preview(.85)
 		"preview_out":world.zoom_preview(1.0/.85)
 		"sound":
@@ -199,12 +200,14 @@ func pointer_move(id: int,p: Vector2,relative: Vector2) -> void:
 			var before:float=preview_pointers[id].distance_to(preview_pointers[other])
 			var after:float=p.distance_to(preview_pointers[other])
 			if before>12 and after>12:world.zoom_preview(before/after)
-		else:world.orbit_preview(relative)
+		else:world.orbit_preview(p-preview_pointers[id])
 		preview_pointers[id]=p;return
 	if page!="play":return
 	if id==move_pointer:joystick=((p-joystick_origin)/62.0).limit_length()
 	elif id==look_pointer:world.orbit(relative*settings.sensitivity)
 func pointer_up(id: int) -> void:
+	if page=="home" and preview_pointers.has(id):
+		print("PIPI_PREVIEW orbit ",world.preview_yaw," ",world.preview_pitch," ",world.preview_distance)
 	preview_pointers.erase(id)
 	if id==move_pointer:move_pointer=-99;joystick=Vector2.ZERO
 	if id==look_pointer:look_pointer=-99
