@@ -90,7 +90,7 @@ try:
     shot('02-first-light')
     tap(1165, 516)
     expect('PIPI_EVENT: JUMP')
-    adb('shell', 'input', 'swipe', '143', '583', '143', '515', '1800')
+    adb('shell', 'input', 'swipe', '143', '583', '143', '515', '4500')
     expect('PIPI_EVENT: MOVED')
     tap(900, 47)
     expect('PIPI_EVENT: HINT')
@@ -121,7 +121,8 @@ try:
     expect('PIPI_EVENT: HOME')
     time.sleep(2)
     shot('06-relaunch')
-    (OUT / 'report.json').write_text(json.dumps(dict(result='PASS', checks=['launch', 'rendered landscape', 'play', 'jump', 'joystick movement', 'hint', 'map', 'pause/resume', 'four authored chapters', 'selected chapter after process recreation'], limitations=['ARM64 physical-device performance', 'full chapter completion', 'Godot save migration', 'multi-touch sprint+jump combination']), indent=2))
+    assert 'E/Unity' not in logs() and 'FATAL EXCEPTION' not in logs(), 'Unity runtime logged an error'
+    (OUT / 'report.json').write_text(json.dumps(dict(result='PASS', checks=['launch', 'rendered landscape', 'play', 'jump', 'joystick movement', 'hint', 'map', 'pause/resume', 'four authored chapters', 'selected chapter after process recreation', 'no Unity runtime errors'], limitations=['ARM64 physical-device performance', 'full chapter completion', 'Godot save migration', 'multi-touch sprint+jump combination']), indent=2))
     print('PASS: Unity Android launch, visible frames, joystick, jump, hint, map, pause, four chapters and recreation')
 finally:
     captured = logs()

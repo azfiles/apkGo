@@ -28,7 +28,7 @@ namespace PipiMaze
         {var r=Rect(parent,"Panel",x,y,w,h);var image=r.gameObject.AddComponent<Image>();image.color=color;return image;}
         Text Label(Transform parent,string text,float x,float y,float w,float h,int size,Color color,TextAnchor align=TextAnchor.MiddleLeft)
         {
-            var r=Rect(parent,"Text",x,y,w,h);var t=r.gameObject.AddComponent<Text>();t.font=font;t.text=text;t.fontSize=size;t.color=color;t.alignment=align;t.raycastTarget=false;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Truncate;return t;
+            var r=Rect(parent,"Text",x,y,w,h);var t=r.gameObject.AddComponent<Text>();t.font=font;t.text=text;t.fontSize=size;t.color=color;t.alignment=align;t.raycastTarget=false;t.horizontalOverflow=HorizontalWrapMode.Wrap;t.verticalOverflow=VerticalWrapMode.Overflow;return t;
         }
         Button Button(Transform parent,string text,float x,float y,float w,float h,Action action,bool primary=false)
         {
@@ -61,7 +61,8 @@ namespace PipiMaze
         {
             Button(parent,world.Muted?"声音：关":"声音：开",x,y,132,38,()=>{world.SetMute(!world.Muted);PlayerPrefs.SetInt("pipi.mute",world.Muted?1:0);Reopen();});
             Button(parent,showFps?"FPS：开":"FPS：关",x+145,y,110,38,()=>{showFps=!showFps;PlayerPrefs.SetInt("pipi.fps",showFps?1:0);Reopen();});
-            fps=Label(parent,"",x,y+43,255,25,14,ink,TextAnchor.MiddleRight);
+            Button(parent,world.LowQuality?"画质：流畅":"画质：标准",x,y+43,255,38,()=>{world.SetQuality(!world.LowQuality);PlayerPrefs.SetInt("pipi.quality",world.LowQuality?0:1);PlayerPrefs.Save();Reopen();});
+            fps=Label(parent,"",x,y+86,255,25,14,ink,TextAnchor.MiddleRight);
         }
         void Reopen(){if(world.Home)ShowHome();else if(paused)ShowPause();else if(world.Completed)ShowComplete();else ShowGame();}
         public void ShowGame()

@@ -7,14 +7,16 @@ Shader "Pipi/Soft" {
   #pragma target 3.0
   #pragma multi_compile_instancing
   sampler2D _MainTex; fixed4 _Color,_Emission; float _Occluder; float4 _Hero;
-  struct Input {float2 uv_MainTex;float3 worldPos;float4 screenPos;};
+  struct Input {float2 uv_MainTex;float3 worldPos;};
   void vert(inout appdata_full v) {}
   half4 LightingWrap(SurfaceOutput s,half3 lightDir,half atten) {half d=dot(s.Normal,lightDir)*0.65+0.35;return half4(s.Albedo*_LightColor0.rgb*(max(0,d)*atten),s.Alpha);}
   void surf(Input IN,inout SurfaceOutput o) {
-   float3 ray=_WorldSpaceCameraPos-_Hero.xyz;float t=saturate(dot(IN.worldPos-_Hero.xyz,ray)/max(dot(ray,ray),0.001));
-   float d=distance(IN.worldPos,_Hero.xyz+ray*t);float2 pixel=IN.screenPos.xy/max(IN.screenPos.w,0.001)*_ScreenParams.xy;
-   float noise=frac(sin(dot(floor(pixel),float2(12.9898,78.233)))*43758.5453);
-   if(_Occluder>0.5 && _Hero.w>0.5 && t>0.06 && t<0.98 && d<1.25)clip(noise-0.87);
+   #if !defined(UNITY_PASS_SHADOWCASTER)
+   if(_Occluder>0.5 && _Hero.w>0.5) {
+    float3 ray=_WorldSpaceCameraPos-_Hero.xyz;float t=saturate(dot(IN.worldPos-_Hero.xyz,ray)/max(dot(ray,ray),0.001));
+    if(t>0.06 && t<0.98)clip(distance(IN.worldPos,_Hero.xyz+ray*t)-1.3);
+   }
+   #endif
    fixed4 c=tex2D(_MainTex,IN.uv_MainTex)*_Color;o.Albedo=c.rgb;o.Alpha=1;o.Emission=_Emission.rgb;
   }
   ENDCG

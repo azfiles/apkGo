@@ -18,6 +18,7 @@ namespace PipiMaze
         public Transform Player {get;private set;}public Camera Camera {get;private set;}
         public readonly HashSet<int> Lit=new HashSet<int>(),Stars=new HashSet<int>();
         public bool Active,Home=true,Completed,Muted;
+        public bool LowQuality {get;private set;}
         public Vector2 Move;public bool Sprint;public float Energy=1,Elapsed,Yaw,Pitch=24;
         public int Jumps,Rescues;public Action Changed,Escaped;public Action<string> Notice;
         public Vector3 Velocity=>controller&&controller.enabled?controller.velocity:Vector3.zero;
@@ -30,17 +31,30 @@ namespace PipiMaze
         readonly Dictionary<Material,Material> occluders=new Dictionary<Material,Material>();
         readonly Dictionary<string,Material> colors=new Dictionary<string,Material>();
         readonly List<GameObject> sparks=new List<GameObject>();
+        readonly List<Mesh> combinedMeshes=new List<Mesh>();
+        sealed class Batch { public Material Material;public readonly List<CombineInstance> Parts=new List<CombineInstance>(); }
         const float Gravity=18,JumpSpeed=6.8f;
         public void Initialize()
         {
             Application.targetFrameRate=60;Screen.sleepTimeout=SleepTimeout.NeverSleep;
-            RenderSettings.ambientMode=AmbientMode.Flat;RenderSettings.ambientLight=Hex("91b7a2")*.8f;
+            RenderSettings.ambientMode=AmbientMode.Flat;RenderSettings.ambientLight=Hex("91b7a2")*.55f;
             RenderSettings.fog=true;RenderSettings.fogMode=FogMode.Linear;RenderSettings.fogStartDistance=42;RenderSettings.fogEndDistance=120;
-            var lightObject=new GameObject("Warm sun");sun=lightObject.AddComponent<Light>();sun.type=LightType.Directional;sun.color=Hex("fff0d2");sun.intensity=1.15f;sun.shadows=LightShadows.Soft;lightObject.transform.rotation=Quaternion.Euler(48,-35,0);
-            QualitySettings.shadows=ShadowQuality.All;QualitySettings.shadowDistance=35;QualitySettings.shadowResolution=ShadowResolution.Medium;QualitySettings.antiAliasing=2;QualitySettings.vSyncCount=0;
-            var cameraObject=new GameObject("Main Camera");Camera=cameraObject.AddComponent<Camera>();cameraObject.AddComponent<AudioListener>();cameraObject.tag="MainCamera";Camera.nearClipPlane=.15f;Camera.farClipPlane=170;Camera.fieldOfView=52;
+            var lightObject=new GameObject("Warm sun");sun=lightObject.AddComponent<Light>();sun.type=LightType.Directional;sun.color=Hex("fff0d2");sun.intensity=.90f;lightObject.transform.rotation=Quaternion.Euler(48,-35,0);
+            QualitySettings.vSyncCount=0;
+            var cameraObject=new GameObject("Main Camera");Camera=cameraObject.AddComponent<Camera>();cameraObject.AddComponent<AudioListener>();cameraObject.tag="MainCamera";Camera.nearClipPlane=.15f;Camera.farClipPlane=170;Camera.fieldOfView=52;Camera.allowHDR=false;
+            string device=(SystemInfo.deviceModel+" "+SystemInfo.graphicsDeviceName).ToLowerInvariant();
+            bool software=device.Contains("android sdk")||device.Contains("sdk_gphone")||device.Contains("swiftshader")||device.Contains("llvmpipe");
+            int preference=PlayerPrefs.GetInt("pipi.quality",-1);SetQuality(preference<0?software:preference==0);
             audioSource=gameObject.AddComponent<AudioSource>();ambience=gameObject.AddComponent<AudioSource>();ambience.clip=Resources.Load<AudioClip>("Audio/ambience");ambience.loop=true;ambience.volume=.23f;ambience.Play();
             foreach(var data in JsonUtility.FromJson<ModelCatalog>(Resources.Load<TextAsset>("catalog").text).assets)catalog[data.name]=data;
+        }
+        public void SetQuality(bool low)
+        {
+            LowQuality=low;sun.shadows=low?LightShadows.None:LightShadows.Hard;
+            QualitySettings.shadows=low?ShadowQuality.Disable:ShadowQuality.HardOnly;QualitySettings.shadowDistance=25;QualitySettings.shadowCascades=0;
+            QualitySettings.shadowResolution=ShadowResolution.Medium;QualitySettings.antiAliasing=low?0:2;QualitySettings.pixelLightCount=1;
+            QualitySettings.realtimeReflectionProbes=false;Camera.allowMSAA=!low;
+            Debug.Log("PIPI_QUALITY: "+(low?"low":"standard"));
         }
         public Vector3 At(Cell c,float height=0)=>new Vector3((c.x-Level.Width/2)*4,height,-(c.y-Level.Width/2)*4);
         public Cell CellAt(Vector3 p)=>new Cell(Mathf.RoundToInt(p.x/4)+Level.Width/2,Mathf.RoundToInt(-p.z/4)+Level.Width/2);
@@ -68,7 +82,7 @@ namespace PipiMaze
         public void Build(int chapter)
         {
             Active=false;Chapter=Mathf.Clamp(chapter,0,Level.Ids.Length-1);Level=JsonUtility.FromJson<Level>(Resources.Load<TextAsset>("Levels/"+Level.Ids[Chapter]).text);Level.Validate();
-            if(geometry)DestroyImmediate(geometry);if(dynamicRoot)DestroyImmediate(dynamicRoot);
+            if(geometry)DestroyImmediate(geometry);if(dynamicRoot)DestroyImmediate(dynamicRoot);foreach(var mesh in combinedMeshes)if(mesh)DestroyImmediate(mesh);combinedMeshes.Clear();
             geometry=new GameObject("Authored architecture");dynamicRoot=new GameObject("Gameplay");Lit.Clear();Stars.Clear();sparks.Clear();
             Elapsed=0;Energy=1;Jumps=Rescues=0;Completed=false;phase=coyote=jumpBuffer=0;Yaw=0;Pitch=24;hintCooldown=hintTime=0;movedDistance=0;movementReported=false;
             Camera.backgroundColor=Hex(Level.environment?.background??"b9dfe0");RenderSettings.fogColor=Hex(Level.environment?.fog??"c7e2d7");
@@ -113,8 +127,36 @@ namespace PipiMaze
             var podium=GameObject.CreatePrimitive(PrimitiveType.Cylinder);podium.transform.SetParent(dynamicRoot.transform,false);podium.transform.position=At(Level.start)+new Vector3(4,-.07f,4);podium.transform.localScale=new Vector3(2,.06f,2);podium.GetComponent<Renderer>().sharedMaterial=ColorMaterial("f6e5b9");DestroyImmediate(podium.GetComponent<Collider>());stage=podium.transform;
             var routeObject=new GameObject("Golden route");routeObject.transform.SetParent(dynamicRoot.transform);route=routeObject.AddComponent<LineRenderer>();route.sharedMaterial=ColorMaterial("ffe6a4",true);route.widthMultiplier=.11f;route.positionCount=0;route.numCornerVertices=4;
             safe=At(Level.start,.08f);Restore();SetHome(true);
-            StaticBatchingUtility.Combine(geometry);
+            BatchGeometry();
             Debug.Log("PIPI_EVENT: WORLD_READY "+Level.id);Changed?.Invoke();
+        }
+        void BatchGeometry()
+        {
+            // Combine by material and 16-meter region. Keep authored colliders in
+            // place while reducing thousands of small renderers to bounded groups.
+            var groups=new Dictionary<string,Batch>();int sourceCount=0;
+            foreach(var filter in geometry.GetComponentsInChildren<MeshFilter>())
+            {
+                var renderer=filter.GetComponent<MeshRenderer>();var mesh=filter.sharedMesh;
+                if(!renderer||!renderer.enabled||!mesh||!mesh.isReadable)continue;
+                var materials=renderer.sharedMaterials;if(materials.Length==0)continue;
+                Vector3 p=filter.transform.position;int x=Mathf.FloorToInt(p.x/16),z=Mathf.FloorToInt(p.z/16);
+                for(int s=0;s<mesh.subMeshCount;s++)
+                {
+                    Material material=materials[Mathf.Min(s,materials.Length-1)];if(!material)continue;
+                    string key=material.GetInstanceID()+":"+x+":"+z;
+                    if(!groups.TryGetValue(key,out var batch)){batch=new Batch{Material=material};groups[key]=batch;}
+                    batch.Parts.Add(new CombineInstance{mesh=mesh,subMeshIndex=s,transform=geometry.transform.worldToLocalMatrix*filter.transform.localToWorldMatrix});
+                }
+                renderer.enabled=false;sourceCount++;
+            }
+            foreach(var group in groups.Values)
+            {
+                var mesh=new Mesh{name="Batched architecture",indexFormat=IndexFormat.UInt32};mesh.CombineMeshes(group.Parts.ToArray(),true,true);mesh.RecalculateBounds();combinedMeshes.Add(mesh);
+                var go=new GameObject("Architecture group");go.transform.SetParent(geometry.transform,false);go.AddComponent<MeshFilter>().sharedMesh=mesh;
+                var renderer=go.AddComponent<MeshRenderer>();renderer.sharedMaterial=group.Material;renderer.lightProbeUsage=LightProbeUsage.Off;renderer.reflectionProbeUsage=ReflectionProbeUsage.Off;
+            }
+            Debug.Log("PIPI_BATCH: "+sourceCount+" source renderers -> "+groups.Count+" material/region groups");
         }
         void BuildHurdle(Vector3 p,Challenge c)
         {
@@ -155,10 +197,10 @@ namespace PipiMaze
         }
         void Update()
         {
-            if(!Player)return;float dt=Mathf.Min(Time.deltaTime,.05f);ambience.mute=Muted;
+            if(!Player)return;float dt=Mathf.Min(Time.deltaTime,.1f);ambience.mute=Muted;
             if(Active)
             {
-                Elapsed+=dt;hintCooldown=Mathf.Max(0,hintCooldown-dt);hintTime=Mathf.Max(0,hintTime-dt);route.enabled=hintTime>0;
+                Elapsed+=Time.unscaledDeltaTime;hintCooldown=Mathf.Max(0,hintCooldown-dt);hintTime=Mathf.Max(0,hintTime-dt);route.enabled=hintTime>0;
                 Vector2 input=Vector2.ClampMagnitude(Move,1);if(input.magnitude<.12f)input=Vector2.zero;
                 float angle=Yaw*Mathf.Deg2Rad;var forward=new Vector3(Mathf.Sin(angle),0,Mathf.Cos(angle));var right=new Vector3(forward.z,0,-forward.x);var direction=right*input.x+forward*input.y;
                 bool running=Sprint&&Energy>.06f&&direction.magnitude>.2f;Energy=Mathf.Clamp01(Energy+dt*(running?-.25f:.19f));
