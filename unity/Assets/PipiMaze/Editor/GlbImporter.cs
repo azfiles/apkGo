@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -32,7 +33,7 @@ namespace PipiMaze.Editor
         {
             byte[] bytes=File.ReadAllBytes(ctx.assetPath);
             if(BitConverter.ToUInt32(bytes,0)!=0x46546c67 || BitConverter.ToInt32(bytes,4)!=2)throw new InvalidDataException("Expected GLB 2");
-            int length=BitConverter.ToInt32(bytes,12);string metadata=Path.ChangeExtension(ctx.assetPath,".json");ctx.DependsOnSourceAsset(metadata);doc=JsonUtility.FromJson<Doc>(File.ReadAllText(metadata));
+            int length=BitConverter.ToInt32(bytes,12);string metadata="Assets/PipiMaze/Editor/ModelMetadata/"+Path.GetFileNameWithoutExtension(ctx.assetPath)+".json";ctx.DependsOnSourceAsset(metadata);doc=JsonUtility.FromJson<Doc>(File.ReadAllText(metadata));
             int offset=20+length, binaryLength=BitConverter.ToInt32(bytes,offset);bin=new byte[binaryLength];Buffer.BlockCopy(bytes,offset+8,bin,0,binaryLength);
             if(doc.extensionsRequired!=null&&doc.extensionsRequired.Length>0 || doc.skins!=null&&doc.skins.Length>0)throw new InvalidDataException("Unsupported compressed/skinned model");
             var textures=new Texture2D[doc.images?.Length??0];
@@ -42,10 +43,11 @@ namespace PipiMaze.Editor
                 var tex=new Texture2D(2,2,TextureFormat.RGBA32,true){name=source.name??"Texture"};if(!tex.LoadImage(png))throw new InvalidDataException("Invalid embedded texture");
                 tex.wrapMode=TextureWrapMode.Repeat;ctx.AddObjectToAsset("texture"+i,tex);textures[i]=tex;
             }
+            const string shaderPath="Assets/PipiMaze/Resources/Shaders/Soft.shader";ctx.DependsOnArtifact(shaderPath);var shader=AssetDatabase.LoadAssetAtPath<Shader>(shaderPath);if(!shader)throw new InvalidDataException("Missing Pipi shader");
             var materials=new Material[doc.materials.Length];
             for(int i=0;i<materials.Length;i++)
             {
-                Mat source=doc.materials[i];var mat=new Material(Shader.Find("Pipi/Soft")){name=source.name,enableInstancing=true};var p=source.pbrMetallicRoughness;
+                Mat source=doc.materials[i];var mat=new Material(shader){name=source.name,enableInstancing=true};var p=source.pbrMetallicRoughness;
                 float[] c=p?.baseColorFactor;mat.color=c!=null ? new Color(c[0],c[1],c[2],c[3]).gamma : Color.white;
                 if(p?.baseColorTexture!=null)mat.mainTexture=textures[doc.textures[p.baseColorTexture.index].source];
                 if(source.emissiveFactor!=null)mat.SetColor("_Emission",new Color(source.emissiveFactor[0],source.emissiveFactor[1],source.emissiveFactor[2]));

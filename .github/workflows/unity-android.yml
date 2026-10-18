@@ -22,7 +22,7 @@ jobs:
         run: |
           set -o pipefail
           python3 scripts/unity/sync-assets.py
-          git diff --exit-code -- unity/Assets/PipiMaze/Resources
+          git diff --exit-code -- unity/Assets/PipiMaze/Resources unity/Assets/PipiMaze/Editor/ModelMetadata
           mkdir -p work/unity-build
           dotnet run --project tests/unity/Core.csproj | tee work/unity-build/model-report.txt
       - uses: actions/upload-artifact@v4
