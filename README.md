@@ -12,6 +12,8 @@
 
 ## 开发入口
 
+Agent 从 [AGENTS.md](AGENTS.md) 开始，模型与关卡工作遵循 [已固定的建模策略](docs/maze3d/MODELING.md)。游戏、工具和 Blender 源目录分别提供补充指令。
+
 Godot **4.6.3** 导入 `maze3d/project.godot` 即可运行。Linux：
 
 ```bash
