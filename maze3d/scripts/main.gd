@@ -80,6 +80,11 @@ func start_game(resume: bool=false) -> void:
 
 func action(id: String) -> void:
 	match id:
+		"credits":page="credits";reset_input()
+		"close_credits":page="home";reset_input()
+		"source_sunland":OS.shell_open("https://github.com/azfiles/Sunland")
+		"source_osm":OS.shell_open("https://www.openstreetmap.org/copyright")
+		"source_odbl":OS.shell_open("https://opendatacommons.org/licenses/odbl/1-0/")
 		"start":start_game(false)
 		"continue":start_game(true)
 		"pause":pause_game()
@@ -148,6 +153,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_ESCAPE or event.keycode==KEY_P:
 			if page=="map":action("close_map")
+			elif page=="credits":action("close_credits")
 			elif page=="confirm":action("cancel_retry")
 			else:pause_game()
 		elif event.keycode==KEY_ENTER or event.keycode==KEY_SPACE:
@@ -261,6 +267,7 @@ func _notification(what: int) -> void:
 		elif page=="pause":action("resume")
 		elif page=="home":save_progress();get_tree().quit()
 		elif page=="win":action("home")
+		elif page=="credits":action("close_credits")
 	elif what==NOTIFICATION_WM_CLOSE_REQUEST:
 		save_progress();get_tree().quit()
 

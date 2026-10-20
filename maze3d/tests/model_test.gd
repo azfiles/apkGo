@@ -14,7 +14,7 @@ func _initialize() -> void:
 				var c:=Vector2i(x,y)
 				if m.walkable(c):walkable_count+=1;check(m.cell(m.world(c))==c,"world/cell roundtrip")
 		check(distances.size()==walkable_count,"all passages connected")
-		check(m.beacons.size()==3 and m.motes.size()==(12 if chapter<3 else 18),"objective counts")
+		check(m.beacons.size()==3 and m.motes.size()==[12,12,12,18,24][chapter],"objective counts")
 		check(m.goal not in m.beacons and m.goal not in m.motes,"distinct exit")
 		for target in m.beacons+[m.goal]:
 			var path:Array=m.path(m.start,target)

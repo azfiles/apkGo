@@ -117,6 +117,7 @@ func build(chapter: int, saved: Dictionary = {}) -> bool:
 	dynamic=Node3D.new();add_child(dynamic)
 	geo.name="Geometry";dynamic.name="Gameplay"
 	var style:Dictionary=maze.definition.get("environment",{})
+	var surfaces:Dictionary=maze.definition.get("surface_assets",{})
 	env.background_color=Color(style.get("background","b9dfe0"))
 	env.fog_light_color=Color(style.get("fog","c7e2d7"))
 	var rng:=RandomNumberGenerator.new();rng.seed=int(maze.definition.seed)
@@ -127,6 +128,8 @@ func build(chapter: int, saved: Dictionary = {}) -> bool:
 	var mark_mesh:=BoxMesh.new();mark_mesh.size=Vector3(.40,.012,.055)
 	var mark_mat:=material("aebfa1")
 	var tile_mats: Array = [material("d9dfbe"),material("e0e3c7"),material("d4dbb9"),material("e5e5c9")]
+	var water_mesh:=BoxMesh.new();water_mesh.size=Vector3(4,.06,4)
+	var water_mat:=material(style.get("water","69bfc9"))
 	for z in maze.width:
 		for x in maze.width:
 			var cell:=Vector2i(x,z)
@@ -137,11 +140,11 @@ func build(chapter: int, saved: Dictionary = {}) -> bool:
 					build_gap(p,challenge)
 					continue
 				if maze.surface(cell)=="=":
-					var bridge:=model("garden_bridge",geo,p,true)
+					var bridge:=model(surfaces.get("bridge","garden_bridge"),geo,p,true)
 					bridge.rotation_degrees.y=float(maze.definition.get("bridge_rotation_y",0))
 					apply_wall_material(bridge)
 					continue
-				var tile:=model("courtyard_tile",geo,p,true)
+				var tile:=model(surfaces.get("floor","courtyard_tile"),geo,p,true)
 				var region:Dictionary=maze.region_at(cell)
 				var floor_mat:Material=material(region.floor) if region.has("floor") else tile_mats[rng.randi_range(0,3)]
 				for part in tile.find_children("TileTop*","MeshInstance3D",true,false):part.material_override=floor_mat
@@ -154,9 +157,10 @@ func build(chapter: int, saved: Dictionary = {}) -> bool:
 					var pos:=p+Vector3(1.42,0,1.42)
 					var lantern:=model("lantern",geo,pos);apply_wall_material(lantern);lantern_positions.append(pos+Vector3(0,1.7,0))
 			elif maze.surface(cell)=="~":
-				box(Vector3(3.98,.06,3.98),p-Vector3(0,1.1,0),style.get("water","69bfc9"),geo)
+				mesh(water_mesh,water_mat,geo,p-Vector3(0,1.1,0))
 			else:
-				var wall:=model("wall_"+str(rng.randi_range(0,2)),geo,p,true)
+				var wall_id: String="wall_"+str(rng.randi_range(0,2))
+				var wall:=model(surfaces.get("wall",wall_id),geo,p,true)
 				apply_wall_material(wall)
 				if (x==0 or z==0 or x==maze.width-1 or z==maze.width-1) and (x+z)%3==0:
 					var tree:=model("tree_"+str(chapter%2),geo,p+Vector3(0,2.25,0));tree.rotation.y=rng.randf()*TAU;tree.scale=Vector3.ONE*rng.randf_range(.85,1.35)

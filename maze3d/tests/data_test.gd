@@ -12,14 +12,14 @@ func frames(n:int) -> void:
 	for i in n:await physics_frame
 func _initialize() -> void:call_deferred("run")
 func run() -> void:
-	check(Levels.count()==4,"four authored chapters exposed by the catalog")
-	var legacy_hashes:=["63cc65cca7145a0856d40fdf320afbacc3639301463ac16a6ddff567e275ddaf","dc66bd55cae3bd7e1ba09aaeb0f158b40a77233c602e11a7855d65407d357850","3d2bf14c61624508c714943216600760e082ec7e7affc12d97a130b8e31b101e"]
-	var legacy_objectives:=["f9b9521322734d8306dacd504dc1b2ecc8add9794373d4287788dc81fb6b894c","f4662f8f425496163902cc35ad9332c77dcf53b40d19d0b1a421a03c91923f17","3353d6793fc727baf1366220d6c7cb3d00a6c3573938ba3588b8bc3f64a70d81"]
+	check(Levels.count()==5,"five authored chapters exposed by the catalog")
+	var legacy_hashes:=["63cc65cca7145a0856d40fdf320afbacc3639301463ac16a6ddff567e275ddaf","dc66bd55cae3bd7e1ba09aaeb0f158b40a77233c602e11a7855d65407d357850","3d2bf14c61624508c714943216600760e082ec7e7affc12d97a130b8e31b101e","97c77dc44b3237c92bfbd88d4a91132a7d4838dbe0ea9851227a5256f41e894a"]
+	var legacy_objectives:=["f9b9521322734d8306dacd504dc1b2ecc8add9794373d4287788dc81fb6b894c","f4662f8f425496163902cc35ad9332c77dcf53b40d19d0b1a421a03c91923f17","3353d6793fc727baf1366220d6c7cb3d00a6c3573938ba3588b8bc3f64a70d81","d33c8aa12bb2c38b3cdff1da6bbcf23bb71944bd40df2573a65e426e55050403"]
 	for i in Levels.count():
 		var data:=Levels.load_chapter(i)
 		check(not data.is_empty(),"chapter JSON passes the authoring contract")
-		if i<3:check("\n".join(data.grid).sha256_text()==legacy_hashes[i],"legacy maze coordinates remain byte-for-byte stable")
-		if i<3:
+		if i<4:check("\n".join(data.grid).sha256_text()==legacy_hashes[i],"legacy maze coordinates remain byte-for-byte stable")
+		if i<4:
 			var cells:PackedStringArray=[]
 			for c in [data.start,data.goal]+data.beacons+data.motes:cells.append("%d,%d"%[c[0],c[1]])
 			check("|".join(cells).sha256_text()==legacy_objectives[i],"legacy objective indices and collectible save bits remain stable")
@@ -90,6 +90,21 @@ func run() -> void:
 	w.player.position=w.maze.world(Vector2i(9,8))+Vector3(0,.12,0);w.player.velocity=Vector3.ZERO
 	var rescues:int=w.rescues;await frames(65)
 	check(w.rescues==rescues+1,"canal is a real opening and recovers safely")
+	app.action("chapter4");app.start_game(false);await frames(8)
+	w=app.world
+	check(w.maze.definition.id=="sunland_lake" and w.mote_nodes.size()==24,"Sunland starts with all 24 stars")
+	check(app.resume_chapter({"chapter":0,"level_id":"sunland_lake"})==4,"Sunland save uses stable ID")
+	check(w.maze.definition.scenery.size()>=32,"Sunland landmark placements loaded")
+	var sunland:Dictionary=w.maze.definition
+	for bad in [null,{"floor":"missing"},{"bridge":"sunland_reeds"},{"roof":"sunland_bridge"}]:
+		invalid=sunland.duplicate(true);invalid.surface_assets=bad
+		check(not Levels.validate(invalid).is_empty(),"invalid or non-colliding surface palette rejected")
+	w.player.position=w.maze.world(Vector2i(12,12))+Vector3(0,.12,0);w.player.velocity=Vector3.ZERO;await frames(20)
+	check(w.player.is_on_floor(),"Sunland wooden crossing supports the player")
+	w.safe_position=w.maze.world(w.maze.start)+Vector3(0,.08,0)
+	w.player.position=w.maze.world(Vector2i(12,10))+Vector3(0,.12,0);w.player.velocity=Vector3.ZERO
+	rescues=w.rescues;await frames(65)
+	check(w.rescues==rescues+1,"Sunland lake safely recovers a fall")
 	app.action("home");app.chapter=0;app.start_game(false)
 	print("DATA: ",checks," checks, 0 failures")
 	app.queue_free();await frames(3);OS.delay_msec(150);quit()

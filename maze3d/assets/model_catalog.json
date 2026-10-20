@@ -398,6 +398,187 @@
         }
       ],
       "source_root": "aqueduct"
+    },
+    "sunland_dock": {
+      "path": "res://assets/models/sunland_dock.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_dock",
+      "colliders": []
+    },
+    "sunland_camp": {
+      "path": "res://assets/models/sunland_camp.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_camp",
+      "colliders": [
+        {
+          "size": [
+            9.8,
+            5.3,
+            9.8
+          ],
+          "position": [
+            0,
+            2.65,
+            0
+          ]
+        }
+      ]
+    },
+    "sunland_pavilion": {
+      "path": "res://assets/models/sunland_pavilion.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_pavilion",
+      "colliders": [
+        {
+          "size": [
+            13.68,
+            2.7,
+            5.76
+          ],
+          "position": [
+            0,
+            1.35,
+            0
+          ]
+        }
+      ]
+    },
+    "sunland_willow": {
+      "path": "res://assets/models/sunland_willow.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_willow",
+      "colliders": []
+    },
+    "sunland_redwood": {
+      "path": "res://assets/models/sunland_redwood.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_redwood",
+      "colliders": []
+    },
+    "sunland_bench": {
+      "path": "res://assets/models/sunland_bench.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_bench",
+      "colliders": [
+        {
+          "size": [
+            1.85,
+            1.1,
+            0.85
+          ],
+          "position": [
+            0,
+            0.55,
+            -0.12
+          ]
+        }
+      ]
+    },
+    "sunland_reeds": {
+      "path": "res://assets/models/sunland_reeds.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_reeds",
+      "colliders": []
+    },
+    "sunland_boardwalk": {
+      "path": "res://assets/models/sunland_boardwalk.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_boardwalk",
+      "colliders": [
+        {
+          "size": [
+            4,
+            0.18,
+            4
+          ],
+          "position": [
+            0,
+            -0.09,
+            0
+          ]
+        }
+      ]
+    },
+    "sunland_bridge": {
+      "path": "res://assets/models/sunland_bridge.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_bridge",
+      "colliders": [
+        {
+          "size": [
+            4,
+            0.18,
+            4
+          ],
+          "position": [
+            0,
+            -0.09,
+            0
+          ]
+        },
+        {
+          "size": [
+            0.12,
+            1,
+            4
+          ],
+          "position": [
+            -1.85,
+            0.5,
+            0
+          ]
+        },
+        {
+          "size": [
+            0.12,
+            1,
+            4
+          ],
+          "position": [
+            1.85,
+            0.5,
+            0
+          ]
+        }
+      ]
+    },
+    "sunland_hedge": {
+      "path": "res://assets/models/sunland_hedge.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_hedge",
+      "colliders": [
+        {
+          "size": [
+            4,
+            2.48,
+            4
+          ],
+          "position": [
+            0,
+            1.24,
+            0
+          ]
+        }
+      ]
+    },
+    "sunland_island": {
+      "path": "res://assets/models/sunland_island.glb",
+      "source": "model-source/maze3d/sunland_library.blend",
+      "source_root": "sunland_island",
+      "colliders": [
+        {
+          "size": [
+            13.8,
+            3.2,
+            11.8
+          ],
+          "position": [
+            0,
+            -1.6,
+            0
+          ]
+        }
+      ]
     }
   }
 }

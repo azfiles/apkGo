@@ -1,4 +1,4 @@
-Pipi Maze · 灯火遗迹 0.2.1
+Pipi Maze · 灯火遗迹 0.6.0
 Brown / ブラウン / 布朗 is a character from Oshiri Tantei.
 Character rights: © トロル・ポプラ社／おしりたんてい製作委員会 and respective rights holders.
 The included Brown mesh is an unofficial 3D fan reconstruction made for this prototype, not an official production model.
@@ -8,3 +8,11 @@ Scene models, game mechanics, material patterns, icon and synthesized sound crea
 Editable glTF assets, Blender source and generators included in source distribution.
 Fonts: Noto CJK (SIL Open Font License); URW font license included for the Latin face.
 Engine: Godot 4.6.3 (MIT). See GODOT-LICENSE.txt and GODOT-COPYRIGHT.txt.
+
+Sunland scene modules adapted from https://github.com/azfiles/Sunland
+Source commit: 243b4e2cf0c7b77225c38e28aa2a1b73a07de044
+Scene geography © OpenStreetMap contributors, ODbL 1.0.
+https://www.openstreetmap.org/copyright
+https://opendatacommons.org/licenses/odbl/1-0/
+The playable lake is an artistic, compact rearrangement, not a surveyed map.
+Original OSM extract and attribution accompany the source/model distribution.

@@ -53,6 +53,11 @@ jobs:
           cp build/maze3d/starbridge-screens/04-fps-on.png docs/maze3d/screenshots/14-fps-on.png
           cp build/maze3d/starbridge-screens/06-waterways-map.png docs/maze3d/screenshots/15-waterways-map.png
           cp build/maze3d/starbridge-screens/07-world-overview.png docs/maze3d/screenshots/16-starbridge-overview.png
+          timeout 240 xvfb-run -a -s '-screen 0 1280x720x24' "$GODOT" --fixed-fps 60 --audio-driver Dummy --path maze3d --script res://tests/sunland_capture.gd -- "$PWD/build/maze3d/sunland-screens" > build/maze3d/reports/sunland-capture.txt 2>&1
+          cat build/maze3d/reports/sunland-capture.txt
+          if grep -nE 'SCRIPT ERROR|ERROR:' build/maze3d/reports/sunland-capture.txt; then exit 1; fi
+          grep -Eq 'SUNLAND RENDER: [0-9]+ checks, 0 failures' build/maze3d/reports/sunland-capture.txt
+          cp build/maze3d/sunland-screens/*.png docs/maze3d/screenshots/
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           LP_NUM_THREADS: '4'
@@ -86,6 +91,7 @@ jobs:
             build/maze3d/reports/**
             build/maze3d/android/**
             build/maze3d/starbridge-screens/**
+            build/maze3d/sunland-screens/**
             build/maze3d/*report.txt
             docs/maze3d/screenshots/**
   publish:

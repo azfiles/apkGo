@@ -51,6 +51,7 @@ func _draw() -> void:
 	buttons.clear();draw_set_transform(Vector2.ZERO,0,Vector2.ONE*factor())
 	var w:=width()
 	if game.page=="home":draw_home(w);return
+	if game.page=="credits":draw_credits(w);return
 	draw_hud(w)
 	match game.page:
 		"pause":draw_pause(w)
@@ -96,13 +97,28 @@ func draw_home(w: float) -> void:
 		text("0%d"%(i+1),r.position+Vector2(16,29),15,GOLD if selected else SOFT,latin)
 		for star in 3:
 			star_icon(r.position+Vector2(card_width-48+star*14,24),5.5,Color("e4ad38"),star<int(game.records.get(str(i),{}).get("stars",0)))
-		text(Levels.chapters()[i].title,r.position+Vector2(12,60),22,TEXT,bold)
-		text(Levels.chapters()[i].difficulty,r.position+Vector2(12,85),13,SOFT)
+		text(Levels.chapters()[i].title,r.position+Vector2(12,60),18 if card_width<120 else 22,TEXT,bold)
+		text(Levels.chapters()[i].difficulty,r.position+Vector2(12,85),11 if card_width<120 else 13,SOFT)
 		buttons.append({"id":"chapter%d"%i,"rect":r})
 	draw_rect(Rect2(0,659,w,61),Color(.98,.98,.92,.94))
 	line(Vector2(64,672),Vector2(w-48,672))
 	text("3D 迷宫体验 Demo",Vector2(64,698),13,SOFT)
+	button("credits","场景与来源",Rect2(410,679,150,29),false,true)
 	text("离线游玩  /  自动保存  /  无时间限制",Vector2(w-340,698),13,SOFT)
+
+func draw_credits(w: float) -> void:
+	draw_rect(Rect2(0,0,w,720),PANEL)
+	text("森兰湖畔，新的寻光旅程",Vector2(80,120),36,TEXT,serif)
+	text("场景模块改编自 azfiles / Sunland：码头、营地、展亭与植被。",Vector2(80,190),22,TEXT)
+	text("为手机探索重排的湖湾关卡，并非真实公园的等比例地图。",Vector2(80,235),21,SOFT)
+	text("场景地理数据 © OpenStreetMap contributors · ODbL 1.0",Vector2(80,305),22,TEXT)
+	text("森兰场景为基于开放地图与公开资料的艺术化重建。",Vector2(80,350),20,SOFT)
+	button("source_sunland","Sunland 场景来源",Rect2(80,392,270,48),false,true)
+	button("source_osm","地图署名与许可",Rect2(370,392,270,48),false,true)
+	button("source_odbl","ODbL 1.0 许可",Rect2(660,392,270,48),false,true)
+	text("布朗为非官方同人模型，角色版权归原权利人。",Vector2(80,493),19,SOFT)
+	text("Godot / MIT · Noto CJK / SIL OFL · 完整说明随源码与安装包附带。",Vector2(80,535),18,SOFT)
+	button("close_credits","返回首页",Rect2(80,595,230,55),true)
 
 func draw_hud(w: float) -> void:
 	# Thin top fade keeps scenery legible while maintaining type contrast.

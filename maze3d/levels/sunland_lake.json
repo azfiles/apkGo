@@ -1,0 +1,770 @@
+{
+  "version": 1,
+  "id": "sunland_lake",
+  "title": "森兰寻光",
+  "subtitle": "沿着湖湾栈道，点亮森兰的三盏灯",
+  "difficulty": "漫游 · 湖湾",
+  "seed": 106019,
+  "tile_size": 4.0,
+  "grid": [
+    "#########################",
+    "#.....###################",
+    "#.....###################",
+    "#.........#####.......###",
+    "#.....~~~.#####.~~~~~.###",
+    "###.~~~~~.......~~~~~.###",
+    "###.~~~~~~~~~~~~~~~~~.###",
+    "###.~~~~~~~~~~~~~~~~~.###",
+    "###.~~~~~~~~~~~~~~~~~.###",
+    "###...~~~~~~~~~~~~~...###",
+    "#####.~~~~~~~~~~~~~.#####",
+    "#####.~~~~~~~~~~~~~.#####",
+    "#####.=============.#####",
+    "#####.~~~~~~~~~~~~~.#####",
+    "#####.~~~~~~~~~~~~~.#####",
+    "###...~~~~~~~~~~~~~.#####",
+    "###.~~~~~~~~~~~~~~~.#####",
+    "###.~~~~~~~~~~~~~~~...###",
+    "###.~~~~~~~~~~~~~~~~~.###",
+    "#.....~~~~~~~~~~~~~.....#",
+    "#.....~~~~~~~~~~~~~....##",
+    "#.......................#",
+    "#.....#############....##",
+    "#.....#############.....#",
+    "#########################"
+  ],
+  "start": [
+    1,
+    22
+  ],
+  "goal": [
+    23,
+    21
+  ],
+  "beacons": [
+    [
+      3,
+      2
+    ],
+    [
+      21,
+      4
+    ],
+    [
+      21,
+      20
+    ]
+  ],
+  "motes": [
+    [
+      3,
+      20
+    ],
+    [
+      4,
+      23
+    ],
+    [
+      2,
+      19
+    ],
+    [
+      3,
+      16
+    ],
+    [
+      5,
+      14
+    ],
+    [
+      5,
+      10
+    ],
+    [
+      3,
+      8
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      4,
+      1
+    ],
+    [
+      7,
+      3
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      14,
+      5
+    ],
+    [
+      16,
+      3
+    ],
+    [
+      20,
+      3
+    ],
+    [
+      21,
+      8
+    ],
+    [
+      19,
+      10
+    ],
+    [
+      19,
+      14
+    ],
+    [
+      19,
+      17
+    ],
+    [
+      21,
+      19
+    ],
+    [
+      22,
+      23
+    ],
+    [
+      17,
+      21
+    ],
+    [
+      10,
+      21
+    ],
+    [
+      9,
+      12
+    ],
+    [
+      15,
+      12
+    ]
+  ],
+  "elevated_motes": [
+    4,
+    9,
+    13,
+    16,
+    22,
+    23
+  ],
+  "challenges": [
+    {
+      "cell": [
+        3,
+        18
+      ],
+      "axis": [
+        0,
+        1
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        5,
+        13
+      ],
+      "axis": [
+        0,
+        1
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        3,
+        6
+      ],
+      "axis": [
+        0,
+        1
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        6,
+        3
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        12,
+        5
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        18,
+        3
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        21,
+        6
+      ],
+      "axis": [
+        0,
+        1
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        19,
+        16
+      ],
+      "axis": [
+        0,
+        1
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        19,
+        21
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        13,
+        21
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "gap",
+      "height": 0.75,
+      "span": 1.4
+    },
+    {
+      "cell": [
+        7,
+        21
+      ],
+      "axis": [
+        1,
+        0
+      ],
+      "kind": "hurdle",
+      "height": 0.75,
+      "span": 1.4
+    }
+  ],
+  "scenery": [
+    {
+      "asset": "sunland_dock",
+      "position": [
+        0,
+        -1.55,
+        14.399999999999999
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_island",
+      "position": [
+        -20.8,
+        2.48,
+        -20.8
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_camp",
+      "position": [
+        -20.8,
+        2.48,
+        -20.8
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_pavilion",
+      "position": [
+        21.599999999999994,
+        2.48,
+        -43.8
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_bench",
+      "position": [
+        -36,
+        0,
+        45.8
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_bench",
+      "position": [
+        -36,
+        0,
+        -45.8
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_bench",
+      "position": [
+        38.0,
+        0,
+        45.8
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_redwood",
+      "position": [
+        -44,
+        2.48,
+        -24
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_willow",
+      "position": [
+        -44,
+        2.48,
+        -4
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_redwood",
+      "position": [
+        -44,
+        2.48,
+        16
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_island",
+      "position": [
+        -20,
+        2.48,
+        -16
+      ],
+      "rotation_y": 0,
+      "scale": 0.38,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_redwood",
+      "position": [
+        -20,
+        2.48,
+        -16
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_island",
+      "position": [
+        -12,
+        2.48,
+        -16
+      ],
+      "rotation_y": 0,
+      "scale": 0.38,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_redwood",
+      "position": [
+        -12,
+        2.48,
+        -16
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_redwood",
+      "position": [
+        -4,
+        2.48,
+        -40
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_island",
+      "position": [
+        20,
+        2.48,
+        -20
+      ],
+      "rotation_y": 0,
+      "scale": 0.38,
+      "collisions": true
+    },
+    {
+      "asset": "sunland_willow",
+      "position": [
+        20,
+        2.48,
+        -20
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_redwood",
+      "position": [
+        44,
+        2.48,
+        -24
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_willow",
+      "position": [
+        44,
+        2.48,
+        -4
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_redwood",
+      "position": [
+        44,
+        2.48,
+        16
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_willow",
+      "position": [
+        -20,
+        2.48,
+        44
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_willow",
+      "position": [
+        0,
+        2.48,
+        44
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_willow",
+      "position": [
+        20,
+        2.48,
+        44
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        -22.4,
+        -1.05,
+        -6.0
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        -22.4,
+        -1.05,
+        8
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        -12,
+        -1.05,
+        12
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        8,
+        -1.05,
+        20
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        22.400000000000006,
+        -1.05,
+        7.200000000000003
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        22.400000000000006,
+        -1.05,
+        -8
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        -8,
+        -1.05,
+        -22.0
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        4,
+        -1.05,
+        -22.0
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "sunland_reeds",
+      "position": [
+        -30.4,
+        -1.05,
+        20
+      ],
+      "rotation_y": 0,
+      "scale": 1.4,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        -28,
+        0,
+        -1.6000000000000014
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        28,
+        0,
+        1.6000000000000014
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        -34.6,
+        0,
+        12
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    },
+    {
+      "asset": "lantern",
+      "position": [
+        37.400000000000006,
+        0,
+        20
+      ],
+      "rotation_y": 0,
+      "scale": 1,
+      "collisions": false
+    }
+  ],
+  "bridge_rotation_y": 90,
+  "surface_assets": {
+    "floor": "sunland_boardwalk",
+    "bridge": "sunland_bridge",
+    "wall": "sunland_hedge"
+  },
+  "environment": {
+    "background": "b5dfe8",
+    "fog": "c6e6df",
+    "water": "54adba"
+  },
+  "regions": [
+    {
+      "name": "迎风林岸",
+      "bounds": [
+        1,
+        15,
+        9,
+        23
+      ],
+      "floor": "cbb68b"
+    },
+    {
+      "name": "湖畔营地",
+      "bounds": [
+        1,
+        1,
+        10,
+        14
+      ],
+      "floor": "d3bd91"
+    },
+    {
+      "name": "无界展亭",
+      "bounds": [
+        11,
+        1,
+        23,
+        9
+      ],
+      "floor": "dbc7a0"
+    },
+    {
+      "name": "红栏星桥",
+      "bounds": [
+        6,
+        10,
+        18,
+        14
+      ],
+      "floor": "d3bd91"
+    },
+    {
+      "name": "东岸归途",
+      "bounds": [
+        10,
+        10,
+        23,
+        23
+      ],
+      "floor": "cbb68b"
+    }
+  ]
+}

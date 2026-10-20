@@ -120,3 +120,7 @@ godot --audio-driver Dummy --path maze3d \
 ```
 
 检查覆盖目录和无效数据、旧布局与目标顺序、四章真实连续移动通关、桥面支撑和落水复位、跳跃、角色动画及帧率偏好持久化。帧率读取 `Engine.get_frames_per_second()`，每 0.5 秒更新；显示绘制帧率，不使用物理帧率或设备性能估计。
+
+## 0.6.0 森兰扩展
+
+第五章复用上述流程，新增11个模块与 `sunland_library.blend`，全库34个GLB。可选 `surface_assets` 以既有资源ID指定地面、桥和墙，默认值保持旧关卡表现；字段和源库复现见 [SUNLAND.md](SUNLAND.md)。前四章布局及目标数组保持兼容。

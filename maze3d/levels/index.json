@@ -28,6 +28,13 @@
       "title": "星桥水庭",
       "subtitle": "穿过星桥，让水庭重焕光彩",
       "difficulty": "探索 · 水庭"
+    },
+    {
+      "id": "sunland_lake",
+      "title": "森兰寻光",
+      "subtitle": "沿着湖湾栈道，点亮森兰的三盏灯",
+      "difficulty": "漫游 · 湖湾",
+      "path": "res://levels/sunland_lake.json"
     }
   ]
 }

@@ -1,0 +1,194 @@
+{
+  "version": "1.0.0",
+  "units": "metres",
+  "seed": 20261019,
+  "coordinates": {
+    "schema_version": 1,
+    "seed": 20261019,
+    "units": "metres",
+    "origin_wgs84": [
+      121.5928,
+      31.313
+    ],
+    "bbox_wgs84": [
+      121.5846,
+      31.2984,
+      121.601,
+      31.3275
+    ],
+    "local_bounds": [
+      -779.8593405217462,
+      -1625.2645655815654,
+      779.8593405217462,
+      1614.1326165026599
+    ],
+    "projection": "local equirectangular; spherical R=6378137; suitable for this ~3 km extent",
+    "axes_blender": {
+      "x": "east",
+      "y": "north",
+      "z": "up"
+    },
+    "axes_gltf": {
+      "x": "east",
+      "y": "up",
+      "z": "south"
+    },
+    "water_level_m": 0.0,
+    "ground_level_m": 1.2,
+    "terrain_grid_m": 12,
+    "tree_count_target": 3400,
+    "warnings": []
+  },
+  "stats": {
+    "osm_features": 468,
+    "tree_instances": 3400,
+    "furniture_instances": 170,
+    "water_area_m2": 484352,
+    "land_area_m2": 4568196,
+    "triangles_base": 92697
+  },
+  "landmarks": [
+    {
+      "id": "lake_camp",
+      "name_zh": "湖畔营地",
+      "type": "camp",
+      "position": [
+        -313.8458321607126,
+        420.78767519885895,
+        1.331148564043478
+      ],
+      "rotation": 0,
+      "evidence": [
+        "R05"
+      ],
+      "confidence": "photo-informed form; estimated position and dimensions"
+    },
+    {
+      "id": "kayak_dock",
+      "name_zh": "水湾码头",
+      "type": "dock",
+      "position": [
+        -361.39823097322846,
+        347.31681127531147,
+        1.0774779058780743
+      ],
+      "rotation": -0.1,
+      "evidence": [
+        "R04",
+        "R05"
+      ],
+      "confidence": "photo-informed form; estimated position and dimensions"
+    },
+    {
+      "id": "wujie_pavilion",
+      "name_zh": "森兰无界展亭（体量示意）",
+      "type": "pavilion",
+      "position": [
+        -76.08383809948478,
+        139.1493634918609,
+        1.2497759633869325
+      ],
+      "rotation": -0.45,
+      "evidence": [
+        "R09",
+        "user-map"
+      ],
+      "confidence": "interpretive massing; no sculpture replicas"
+    },
+    {
+      "id": "east_lookout",
+      "name_zh": "东岸观景平台（示意）",
+      "type": "lookout",
+      "position": [
+        252.02771370538804,
+        -150.2813125707668,
+        1.2508881655345727
+      ],
+      "rotation": 0.35,
+      "evidence": [
+        "R03",
+        "user-map"
+      ],
+      "confidence": "gameplay addition; approximate placement"
+    },
+    {
+      "id": "peony_courtyard",
+      "name_zh": "牡丹园古宅组团（简化）",
+      "type": "courtyard",
+      "position": [
+        -204.47531489287215,
+        1285.7401186622792,
+        1.0137771085676994
+      ],
+      "rotation": 0,
+      "evidence": [
+        "R03",
+        "R08"
+      ],
+      "confidence": "generic Jiangnan forms; no measured facade reconstruction"
+    }
+  ],
+  "viewpoints": [
+    {
+      "id": "east_bank",
+      "name_zh": "东岸望湖",
+      "position": [
+        351.8877512118065,
+        -89.0555926344113,
+        8
+      ],
+      "target": [
+        -19.020959524195433,
+        11.131949079301412,
+        2
+      ],
+      "height": 8
+    },
+    {
+      "id": "lake_park",
+      "name_zh": "湖湾栈道",
+      "position": [
+        -351.887751210455,
+        350.6563959989832,
+        2.9
+      ],
+      "target": [
+        -313.8458321607126,
+        417.4480904747917,
+        2
+      ],
+      "height": 2.9
+    },
+    {
+      "id": "south_grove",
+      "name_zh": "南区林间",
+      "position": [
+        -104.61527738645368,
+        -1013.0073662188015,
+        4
+      ],
+      "target": [
+        66.57335833806282,
+        -968.4795699012003,
+        2
+      ],
+      "height": 4
+    }
+  ],
+  "collision": {
+    "file": "sunland_collision.glb",
+    "kind": "static concave triangle meshes",
+    "water_collision": false,
+    "omits": [
+      "tree trunks",
+      "small furniture",
+      "railings",
+      "tent fabric",
+      "detailed landmark walls"
+    ],
+    "note": "Add simple primitive colliders for close-up gameplay; this is not a baked navigation mesh."
+  },
+  "lod1": "same placements and GIS surfaces; lower-complexity tree meshes",
+  "attribution": "© OpenStreetMap contributors; ODbL 1.0",
+  "precision": "mapped plan, inferred supplemental water, artistic heights and plantings"
+}

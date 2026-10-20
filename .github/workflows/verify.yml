@@ -19,5 +19,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install checksum-pinned Godot without export templates
         run: GODOT_ENGINE_ONLY=1 bash scripts/maze3d/setup.sh
-      - name: Test data contracts, four real scenes, FPS, jumping and character animation
+      - name: Test data contracts, five real scenes, FPS, jumping and character animation
         run: bash scripts/maze3d/test.sh

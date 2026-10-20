@@ -109,6 +109,13 @@ static func validate(data: Variant) -> PackedStringArray:
 		if not _number(item.get("scale", 1)) or item.get("scale", 1) <= 0 or item.get("scale", 1) > 4: errors.append("invalid scenery scale")
 		if not item.get("collisions", true) is bool: errors.append("collisions must be boolean")
 	var style = data.get("environment", {})
+	var surfaces = data.get("surface_assets", {})
+	if not surfaces is Dictionary: errors.append("surface_assets must be an object")
+	else:
+		for key in surfaces:
+			if key not in ["floor", "bridge", "wall"]: errors.append("unknown surface role")
+			elif not surfaces[key] is String or not Assets.has_asset(surfaces[key]): errors.append("unknown surface asset")
+			elif Assets.catalog()[surfaces[key]].get("colliders", []).is_empty(): errors.append("surface asset requires collision")
 	if not style is Dictionary: errors.append("environment must be an object")
 	else:
 		for key in ["background", "fog", "water"]:
